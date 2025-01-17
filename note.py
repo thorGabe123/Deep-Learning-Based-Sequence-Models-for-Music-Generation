@@ -1,18 +1,3 @@
-# class Note:
-#     def __init__(self, value, time, velocity, length=-1):
-#         self.value = value
-#         self.time = time
-#         self.length = length
-#         self.velocity = velocity
-
-#     def to_dict(self):
-#         return {
-#             "value": self.value,
-#             "time": self.time,
-#             "length": self.length,
-#             "velocity": self.velocity,
-#         }
-
 class MIDI_note:
     def __init__(self, pitch, time_start, time_end, dynamic, channel, tempo):
         self.pitch = pitch
