@@ -83,33 +83,19 @@ class MusicalTransformer(nn.Module):
         self.token_embedding_table = nn.Embedding(VOCAB_SIZE, N_EMBD)
         self.position_embedding_table = nn.Embedding(BLOCK_SIZE, N_EMBD)
 
-        # Embedding layers for metadata (assuming METADATA_DIMS is a dict with metadata types and dimensions)
-        self.metadata_embeddings = nn.ModuleDict({
-            key: nn.Embedding(num_classes, N_EMBD)
-            for key, num_classes in METADATA_DIMS.items()
-        })
-
         # Transformer blocks
         self.blocks = nn.Sequential(*[Block(N_EMBD, n_head=N_HEAD) for _ in range(N_LAYER)])
         self.ln_f = nn.LayerNorm(N_EMBD)  # final layer norm
         self.lm_head = nn.Linear(N_EMBD, VOCAB_SIZE)
 
-    def forward(self, idx, metadata, targets=None):
+    # def forward(self, idx, metadata, targets=None):
+    def forward(self, idx, targets=None):
         B, T = idx.shape
 
         # Embedding lookups for tokens and positions
         tok_emb = self.token_embedding_table(idx)  # Shape: (B, T, C)
         pos_emb = self.position_embedding_table(torch.arange(T, device=idx.device))  # Shape: (T, C)
         x = torch.concatenate((tok_emb, pos_emb))  # Shape: (B, T, C)
-
-        # Embedding lookups for metadata and combining them
-        metadata_emb = sum(
-            emb_layer(metadata[key])
-            for key, emb_layer in self.metadata_embeddings.items()
-        ).unsqueeze(1)  # Shape: (B, 1, C)
-
-        # Add or concatenate metadata embeddings to sequence embeddings
-        x = torch.concatenate((x, metadata_emb))  # Broadcasting metadata to each position (B, T, C)
 
         # Transformer blocks
         x = self.blocks(x)  # Shape: (B, T, C)
@@ -127,13 +113,13 @@ class MusicalTransformer(nn.Module):
         logits = logits.view(B, T, -1)
         return logits, loss
 
-    def generate(self, idx, metadata, max_new_tokens):
+    def generate(self, idx, max_new_tokens):
         # idx is (B, T) array of indices in the current context
         for _ in range(max_new_tokens):
             # Crop idx to the last BLOCK_SIZE tokens
             idx_cond = idx[:, -BLOCK_SIZE:].long()
             # Get predictions conditioned on metadata
-            logits, _ = self(idx_cond, metadata)
+            logits, _ = self(idx_cond)
             # Focus only on the last time step
             logits = logits[:, -1, :]  # (B, VOCAB_SIZE)
             # Apply softmax to get probabilities

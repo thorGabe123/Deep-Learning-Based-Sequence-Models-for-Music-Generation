@@ -80,14 +80,14 @@ class SequenceDataset(Dataset):
         sequence = multiply_sequence(sequence, time_r_ints, temp_lb, temp_ub)
 
         # Convert to tensor
-        return torch.tensor(sequence[:-1], dtype=torch.long), torch.tensor(sequence[1:], dtype=torch.long)
+        return sequence[:-1].to(DEVICE), sequence[1:].to(DEVICE)
     
     def file_prob(self):
         file_prob = [len(np.load(path)) for path in self.file_paths]
         file_prob /= np.sum(file_prob)
         return file_prob
 
-def get_train_test_dataloaders(directory, batch_size=32, test_ratio=0.2):
+def get_train_test_dataloaders(directory, batch_size=BATCH_SIZE, test_ratio=TEST_RATIO):
     """
     Create training and testing DataLoaders with WeightedRandomSampler.
 
