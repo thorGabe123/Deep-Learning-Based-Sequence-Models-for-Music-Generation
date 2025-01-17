@@ -1,0 +1,10 @@
+{
+    "RESOLUTIONS": {
+        "PITCH_RES": 128,
+        "DYN_RES": 128,
+        "LENGTH_RES": 400,
+        "TIME_RES": 400,
+        "CHANNEL_RES": 128,
+        "TEMPO_RES": 300
+    }
+}
