@@ -3,26 +3,7 @@ import numpy as np
 import pretty_midi
 from note import MIDI_note
 from pathlib import Path
-import json
-
-with open('ranges.json', 'r') as f:
-    range_data = json.load(f)
-
-PITCH_RES = range_data["RESOLUTIONS"]["PITCH_RES"]
-DYN_RES = range_data["RESOLUTIONS"]["DYN_RES"]
-LENGTH_RES = range_data["RESOLUTIONS"]["LENGTH_RES"]
-TIME_RES = range_data["RESOLUTIONS"]["TIME_RES"]
-CHANNEL_RES = range_data["RESOLUTIONS"]["CHANNEL_RES"]
-TEMPO_RES = range_data["RESOLUTIONS"]["TEMPO_RES"]
-NOTE_RES = range_data["RESOLUTIONS"]["NOTE_RES"]
-
-START_IDX = {}
-START_IDX['PITCH_RES'] = 1
-START_IDX['DYN_RES'] = START_IDX['PITCH_RES'] + PITCH_RES
-START_IDX['LENGTH_RES'] = START_IDX['DYN_RES'] + DYN_RES
-START_IDX['TIME_RES'] = START_IDX['LENGTH_RES'] + LENGTH_RES
-START_IDX['CHANNEL_RES'] = START_IDX['TIME_RES'] + TIME_RES
-START_IDX['TEMPO_RES'] = START_IDX['CHANNEL_RES'] + CHANNEL_RES
+from config import *
 
 def find_files_by_extensions(root, exts=[]):
     def _has_ext(name):
@@ -39,7 +20,7 @@ def find_files_by_extensions(root, exts=[]):
                 yield os.path.join(path, name)
     return files
 
-def preprocess_midi_files_under(midi_folder, preprocess_folder):
+def preprocess_midi_files(midi_folder, preprocess_folder):
     midi_paths = list(find_files_by_extensions(midi_folder, ['.mid', '.midi']))
     os.makedirs(midi_folder, exist_ok=True)
     os.makedirs(preprocess_folder, exist_ok=True)
@@ -83,7 +64,7 @@ def extract_midi(path):
     return midi_notes
 
 def adjust_note_time(midi_notes):
-    res_per_beat = NOTE_RES
+    res_per_beat = BAR_RES
     current_beats = 0
     prev_time = 0
     prev_tempo = midi_notes[0].tempo
@@ -121,7 +102,7 @@ def encode(midi_notes):
     return token_seq
 
 def revert_note_time(midi_notes):
-    res_per_beat = NOTE_RES
+    res_per_beat = BAR_RES
     prev_time = 0
     prev_beat = 0
     prev_tempo = midi_notes[0].tempo
