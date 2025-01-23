@@ -3,72 +3,126 @@ import torch.nn as nn
 import math
 from config import *
 
-class TransformerNLP(nn.Module):
-    def __init__(self, vocab_size, embed_size, num_heads, num_encoder_layers, num_decoder_layers, feedforward_dim, dropout=0.1):
-        super(TransformerNLP, self).__init__()
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
-        # Embedding layers for input and output vocab
-        self.input_embedding = nn.Embedding(vocab_size, embed_size)
-        self.output_embedding = nn.Embedding(vocab_size, embed_size)
-
-        # Positional encoding
-        self.positional_encoding = PositionalEncoding(embed_size, dropout)
-
-        # Transformer model
-        self.transformer = nn.Transformer(
-            d_model=embed_size,
-            nhead=num_heads,
-            num_encoder_layers=num_encoder_layers,
-            num_decoder_layers=num_decoder_layers,
-            dim_feedforward=feedforward_dim,
-            dropout=dropout,
-        )
-
-        # Final linear layer to project to output vocabulary size
-        self.fc_out = nn.Linear(embed_size, vocab_size)
-
-    def forward(self, src, tgt, src_mask=None, tgt_mask=None, src_padding_mask=None, tgt_padding_mask=None, memory_key_padding_mask=None):
-        # Embed and apply positional encoding
-        src = self.input_embedding(src) * math.sqrt(self.input_embedding.embedding_dim)
-        src = self.positional_encoding(src)
-
-        tgt = self.output_embedding(tgt) * math.sqrt(self.output_embedding.embedding_dim)
-        tgt = self.positional_encoding(tgt)
-
-        # Ensure batch-first format for transformer
-        src = src.permute(1, 0, 2)  # [batch_size, seq_len, embed_size] -> [seq_len, batch_size, embed_size]
-        tgt = tgt.permute(1, 0, 2)
-
-        # Pass through transformer
-        output = self.transformer(
-            src,
-            tgt,
-            src_mask=src_mask,
-            tgt_mask=tgt_mask,
-            src_key_padding_mask=src_padding_mask,
-            tgt_key_padding_mask=tgt_padding_mask,
-            memory_key_padding_mask=memory_key_padding_mask,
-        )
-
-        # Project to output vocabulary size
-        output = output.permute(1, 0, 2)  # [seq_len, batch_size, embed_size] -> [batch_size, seq_len, embed_size]
-        output = self.fc_out(output)
-        return output
+class MultiHeadAttention(nn.Module):
+    def __init__(self, d_model, num_heads):
+        super(MultiHeadAttention, self).__init__()
+        self.d_model = d_model
+        self.num_heads = num_heads
+        self.head_dim = d_model // num_heads
+        
+        assert self.head_dim * num_heads == d_model, "d_model must be divisible by num_heads"
+        
+        self.query = nn.Linear(d_model, d_model)
+        self.key = nn.Linear(d_model, d_model)
+        self.value = nn.Linear(d_model, d_model)
+        self.fc_out = nn.Linear(d_model, d_model)
+    
+    def forward(self, query, key, value, mask=None):
+        batch_size = query.size(0)
+        
+        # Linear transformations
+        Q = self.query(query)
+        K = self.key(key)
+        V = self.value(value)
+        
+        # Split into multiple heads
+        Q = Q.view(batch_size, -1, self.num_heads, self.head_dim).transpose(1, 2)
+        K = K.view(batch_size, -1, self.num_heads, self.head_dim).transpose(1, 2)
+        V = V.view(batch_size, -1, self.num_heads, self.head_dim).transpose(1, 2)
+        
+        # Scaled Dot-Product Attention
+        scores = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float32))
+        
+        if mask is not None:
+            scores = scores.masked_fill(mask == 0, float('-inf'))
+        
+        attention = F.softmax(scores, dim=-1)
+        out = torch.matmul(attention, V)
+        
+        # Concatenate heads
+        out = out.transpose(1, 2).contiguous().view(batch_size, -1, self.d_model)
+        
+        # Final linear layer
+        out = self.fc_out(out)
+        
+        return out
 
 class PositionalEncoding(nn.Module):
-    def __init__(self, embed_size, dropout, max_len=5000):
+    def __init__(self, d_model, max_len=5000):
         super(PositionalEncoding, self).__init__()
-        self.dropout = nn.Dropout(p=dropout)
-
-        # Compute positional encodings
-        pe = torch.zeros(max_len, embed_size)
-        position = torch.arange(0, max_len).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, embed_size, 2) * -(math.log(10000.0) / embed_size))
-        pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0)
-        self.register_buffer('pe', pe)
-
+        self.encoding = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-torch.log(torch.tensor(10000.0)) / d_model))
+        self.encoding[:, 0::2] = torch.sin(position * div_term)
+        self.encoding[:, 1::2] = torch.cos(position * div_term)
+        self.encoding = self.encoding.unsqueeze(0)
+    
     def forward(self, x):
-        x = x + self.pe[:, :x.size(1), :]
-        return self.dropout(x)
+        return x + self.encoding[:, :x.size(1)].detach()
+
+class TransformerBlock(nn.Module):
+    def __init__(self, d_model, num_heads, d_ff, dropout=0.1):
+        super(TransformerBlock, self).__init__()
+        self.attention = MultiHeadAttention(d_model, num_heads)
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.feed_forward = nn.Sequential(
+            nn.Linear(d_model, d_ff),
+            nn.ReLU(),
+            nn.Linear(d_ff, d_model)
+        )
+        self.dropout = nn.Dropout(dropout)
+    
+    def forward(self, x, mask=None):
+        attention_output = self.attention(x, x, x, mask)
+        x = self.norm1(x + self.dropout(attention_output))
+        ff_output = self.feed_forward(x)
+        x = self.norm2(x + self.dropout(ff_output))
+        return x
+    
+def generate_causal_mask(seq_len):
+    """
+    Generate a causal mask for a sequence of length `seq_len`.
+    """
+    mask = torch.triu(torch.ones(seq_len, seq_len), diagonal=1)  # Upper triangular matrix with diagonal=1
+    mask = mask.masked_fill(mask == 1, float('-inf'))  # Replace 1s with -inf
+    return mask
+
+class SimpleTransformer(nn.Module):
+    def __init__(self, src_vocab_size, d_model, num_heads, num_layers, d_ff, max_len, dropout=0.1):
+        super(SimpleTransformer, self).__init__()
+        self.embedding = nn.Embedding(src_vocab_size, d_model)
+        self.positional_encoding = PositionalEncoding(d_model, max_len)
+        self.layers = nn.ModuleList([TransformerBlock(d_model, num_heads, d_ff, dropout) for _ in range(num_layers)])
+        self.fc_out = nn.Linear(d_model, src_vocab_size)
+        self.dropout = nn.Dropout(dropout)
+        self.max_len = max_len
+
+    def forward(self, src, mask=None):
+        x = self.embedding(src)
+        x = self.positional_encoding(x)
+        x = self.dropout(x)
+
+        for layer in self.layers:
+            x = layer(x, mask)
+
+        out = self.fc_out(x)
+        return out
+
+    def generate(self, src, gen_len):
+        src_len = src.size(1)  # Get the sequence length from the input tensor
+        full_seq = src.detach().clone()
+        
+        for _ in range(gen_len - src_len):
+            trg = self.forward(full_seq[:, -self.max_len:])
+            
+            # Get the last predicted token
+            last_pred = trg.argmax(2)[:, -1].unsqueeze(1)  # Shape: [batch_size, 1]
+            
+            # Append the predicted token to the input sequence
+            full_seq = torch.cat([full_seq, last_pred], dim=1)
+        return full_seq
