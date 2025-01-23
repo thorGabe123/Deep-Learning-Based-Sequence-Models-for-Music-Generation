@@ -54,9 +54,9 @@ class MultiHeadAttention(nn.Module):
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=5000):
         super(PositionalEncoding, self).__init__()
-        self.encoding = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-torch.log(torch.tensor(10000.0)) / d_model))
+        self.encoding = torch.zeros(max_len, d_model).to(DEVICE)  # Move encoding to DEVICE
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1).to(DEVICE)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-torch.log(torch.tensor(10000.0)) / d_model)).to(DEVICE)
         self.encoding[:, 0::2] = torch.sin(position * div_term)
         self.encoding[:, 1::2] = torch.cos(position * div_term)
         self.encoding = self.encoding.unsqueeze(0)
@@ -95,34 +95,42 @@ def generate_causal_mask(seq_len):
 class SimpleTransformer(nn.Module):
     def __init__(self, src_vocab_size, d_model, num_heads, num_layers, d_ff, max_len, dropout=0.1):
         super(SimpleTransformer, self).__init__()
-        self.embedding = nn.Embedding(src_vocab_size, d_model)
-        self.positional_encoding = PositionalEncoding(d_model, max_len)
-        self.layers = nn.ModuleList([TransformerBlock(d_model, num_heads, d_ff, dropout) for _ in range(num_layers)])
-        self.fc_out = nn.Linear(d_model, src_vocab_size)
-        self.dropout = nn.Dropout(dropout)
-        self.max_len = max_len
+        self.embedding = nn.Embedding(src_vocab_size, d_model).to(DEVICE)
+        self.positional_encoding = PositionalEncoding(d_model, max_len).to(DEVICE)
+        self.layers = nn.ModuleList([TransformerBlock(d_model, num_heads, d_ff, dropout).to(DEVICE) for _ in range(num_layers)])  # Move each layer to DEVICE
+        self.fc_out = nn.Linear(d_model, src_vocab_size).to(DEVICE)
+        self.dropout = nn.Dropout(dropout).to(DEVICE)
+        self.max_len = max_len  # Store as an integer, not a tensor
 
     def forward(self, src, mask=None):
-        x = self.embedding(src)
-        x = self.positional_encoding(x)
-        x = self.dropout(x)
+        # Move input tensor to DEVICE
+        src = src.to(DEVICE)
+        
+        x = self.embedding(src)  # No need for .to(DEVICE) here, as embedding is already on DEVICE
+        x = self.positional_encoding(x)  # No need for .to(DEVICE) here, as positional_encoding is already on DEVICE
+        x = self.dropout(x)  # No need for .to(DEVICE) here, as dropout is already on DEVICE
 
         for layer in self.layers:
-            x = layer(x, mask)
+            x = layer(x, mask)  # No need for .to(DEVICE) here, as layers are already on DEVICE
 
-        out = self.fc_out(x)
+        out = self.fc_out(x)  # No need for .to(DEVICE) here, as fc_out is already on DEVICE
         return out
 
     def generate(self, src, gen_len):
+        # Move input tensor to DEVICE
+        src = src.to(DEVICE)
+        
         src_len = src.size(1)  # Get the sequence length from the input tensor
         full_seq = src.detach().clone()
         
         for _ in range(gen_len - src_len):
-            trg = self.forward(full_seq[:, -self.max_len:])
+            # Ensure the input to the model is on the correct device
+            trg = self.forward(full_seq[:, -self.max_len:].to(DEVICE))
             
             # Get the last predicted token
             last_pred = trg.argmax(2)[:, -1].unsqueeze(1)  # Shape: [batch_size, 1]
             
             # Append the predicted token to the input sequence
-            full_seq = torch.cat([full_seq, last_pred], dim=1)
+            full_seq = torch.cat([full_seq, last_pred], dim=1).to(DEVICE)
+        
         return full_seq
