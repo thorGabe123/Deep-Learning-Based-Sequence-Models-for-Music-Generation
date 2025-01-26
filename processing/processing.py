@@ -3,6 +3,8 @@ import numpy as np
 import pretty_midi
 from note import MIDI_note
 from pathlib import Path
+import shutil
+import re
 from config import *
 
 def find_files_by_extensions(root, exts=[]):
@@ -27,17 +29,31 @@ def preprocess_midi_files(midi_folder, preprocess_folder):
 
     for path in midi_paths:
         file_name = Path(path).stem
-        new_path = os.path.join(preprocess_folder, file_name)
+        path_parts = Path(path).parts
+
+        # Extract the desired parts
+        folder_name = path_parts[-2] 
+        file_name = Path(path).stem
+        new_path = os.path.join(preprocess_folder, f'{folder_name}_{file_name}')
         
         print(' ', end='[{}]'.format(path), flush=True)
+
+        # Check if the file already exists or if a file with a similar name exists
         if os.path.exists(new_path + '.npy'):
             continue
 
-        midi_notes = extract_midi(path)
-        if len(midi_notes) == 0:
+        # Check if any file in the preprocess_folder contains the new_path as a substring
+        if re.search(r'\.\d+$', new_path):
             continue
-        token_seq = encode(midi_notes)
-        np.save(new_path, token_seq)
+
+        try:
+            midi_notes = extract_midi(path)
+            if len(midi_notes) == 0:
+                continue
+            token_seq = encode(midi_notes)
+            np.save(new_path, token_seq)
+        except:
+            continue
 
 def extract_midi(path):
     mid = pretty_midi.PrettyMIDI(midi_file=path)
@@ -144,3 +160,38 @@ def decode(token_seq):
 
     revert_note_time(decoded_notes)
     return decoded_notes
+
+def get_directory_size(directory):
+    """Calculate the total size of a directory."""
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(directory):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            total_size += os.path.getsize(fp)
+    return total_size
+
+def get_filenames_sorted_by_size(folder_path):
+    # List all directories in the folder
+    directories = [d for d in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, d))]
+    
+    # Calculate the size of each directory
+    directories_with_size = [(d, get_directory_size(os.path.join(folder_path, d))) for d in directories]
+    
+    # Sort directories by size
+    directories_with_size.sort(key=lambda x: x[1], reverse=True)
+    
+    # Extract the sorted directory names
+    sorted_directories = [d[0] for d in directories_with_size]
+    
+    return sorted_directories
+
+def remove_irrelevant_directories(folder_path, relevant_files):
+    # List all directories in the folder
+    directories = [d for d in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, d))]
+    
+    # Remove directories not in the relevant_files list
+    for directory in directories:
+        if directory not in relevant_files:
+            dir_path = os.path.join(folder_path, directory)
+            print(f"Removing directory: {dir_path}")
+            shutil.rmtree(dir_path)

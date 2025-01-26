@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset, WeightedRandomSampler, DataLoader, random_split
 import random
+import json
 from processing import *
 from config import *
 
@@ -102,6 +103,33 @@ def get_train_test_dataloaders(directory, batch_size=BATCH_SIZE, test_ratio=TEST
     """
     # Load the dataset
     dataset = SequenceDataset(directory)
+    metadata = get_metadata()
+
+    genre_list = []
+    min_time, max_time = 1e9, 0
+    final_metadata = {}
+    for data in metadata['artists']:
+        band = data['name']
+        decade = floor_to_nearest_10(data['year_started'])
+        min_time = min(min_time, decade)
+        max_time = max(max_time, decade)
+        genres = data['genres']
+        for genre in genres:
+            if genre not in genre_list:
+                genre_list.append(genre)
+        final_metadata[band] = {'decade' : decade,
+                                'genres' : genres}
+
+    band_tokenized = {band : idx + 1 for idx, band in enumerate(final_metadata.keys())}
+    time_tokenized = {time : idx + 1 for idx, time in enumerate(range(min_time, max_time + 1, 10))}
+    genre_tokenized = {genre : idx + 1 for idx, genre in enumerate(genre_list)}
+
+    for band in final_metadata.keys():
+        final_metadata[band]['band'] = band_tokenized[band]
+        final_metadata[band]['decade'] = time_tokenized[final_metadata[band]['decade']]
+        final_metadata[band]['genres'] = [genre_tokenized[genre] for genre in final_metadata[band]['genres']]
+
+    #TODO Add metadata to dataloader
     file_prob = dataset.file_prob()  # Get file probabilities
 
     # Split the dataset into training and testing subsets
@@ -136,3 +164,11 @@ def get_train_test_dataloaders(directory, batch_size=BATCH_SIZE, test_ratio=TEST
     )
 
     return train_dataloader, test_dataloader
+
+def get_metadata():
+    with open('F:\\GitHub\\dataset\\midi_dataset\\metadata.json', 'r') as f:
+        metadata = json.load(f)
+    return metadata
+
+def floor_to_nearest_10(number):
+    return (number // 10) * 10

@@ -1,7 +1,5 @@
 import torch
 import torch.nn as nn
-import math
-from config import *
 
 import torch
 import torch.nn as nn
@@ -52,11 +50,11 @@ class MultiHeadAttention(nn.Module):
         return out
 
 class PositionalEncoding(nn.Module):
-    def __init__(self, d_model, max_len=5000):
+    def __init__(self, d_model, max_len=5000, device="cuda"):
         super(PositionalEncoding, self).__init__()
-        self.encoding = torch.zeros(max_len, d_model).to(DEVICE)  # Move encoding to DEVICE
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1).to(DEVICE)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-torch.log(torch.tensor(10000.0)) / d_model)).to(DEVICE)
+        self.encoding = torch.zeros(max_len, d_model).to(device)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1).to(device)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-torch.log(torch.tensor(10000.0)) / d_model)).to(device)
         self.encoding[:, 0::2] = torch.sin(position * div_term)
         self.encoding[:, 1::2] = torch.cos(position * div_term)
         self.encoding = self.encoding.unsqueeze(0)
@@ -88,49 +86,52 @@ def generate_causal_mask(seq_len):
     """
     Generate a causal mask for a sequence of length `seq_len`.
     """
-    mask = torch.triu(torch.ones(seq_len, seq_len), diagonal=1)  # Upper triangular matrix with diagonal=1
-    mask = mask.masked_fill(mask == 1, float('-inf'))  # Replace 1s with -inf
+    mask = torch.triu(torch.ones(seq_len, seq_len), diagonal=1)
+    mask = mask.masked_fill(mask == 1, float('-inf'))
     return mask
 
 class SimpleTransformer(nn.Module):
-    def __init__(self, src_vocab_size, d_model, num_heads, num_layers, d_ff, max_len, dropout=0.1):
+    def __init__(self, src_vocab_size, metadata_vocab_size, d_model, num_heads, num_layers, d_ff, max_len, dropout=0.1, device="cuda"):
         super(SimpleTransformer, self).__init__()
-        self.embedding = nn.Embedding(src_vocab_size, d_model).to(DEVICE)
-        self.positional_encoding = PositionalEncoding(d_model, max_len).to(DEVICE)
-        self.layers = nn.ModuleList([TransformerBlock(d_model, num_heads, d_ff, dropout).to(DEVICE) for _ in range(num_layers)])  # Move each layer to DEVICE
-        self.fc_out = nn.Linear(d_model, src_vocab_size).to(DEVICE)
-        self.dropout = nn.Dropout(dropout).to(DEVICE)
-        self.max_len = max_len  # Store as an integer, not a tensor
+        self.embedding = nn.Embedding(src_vocab_size, d_model).to(device)
+        self.metadata_embedding = nn.Embedding(metadata_vocab_size, d_model).to(device)  # Metadata embedding layer
+        self.positional_encoding = PositionalEncoding(d_model, max_len, device)
+        self.layers = nn.ModuleList([TransformerBlock(d_model * 2, num_heads, d_ff, dropout).to(device) for _ in range(num_layers)])  # Adjust for concatenated embeddings
+        self.fc_out = nn.Linear(d_model * 2, src_vocab_size).to(device)  # Adjust for concatenated embeddings
+        self.dropout = nn.Dropout(dropout).to(device)
+        self.max_len = max_len
 
-    def forward(self, src, mask=None):
-        # Move input tensor to DEVICE
-        src = src.to(DEVICE)
+    def forward(self, src, metadata, mask=None, device="cuda"):
+        src = src.to(device)
+        metadata = metadata.to(device)
+        metadata_emb = self.metadata_embedding(metadata)
+        src_emb = self.embedding(src)
+        src_emb = self.positional_encoding(src_emb)
         
-        x = self.embedding(src)  # No need for .to(DEVICE) here, as embedding is already on DEVICE
-        x = self.positional_encoding(x)  # No need for .to(DEVICE) here, as positional_encoding is already on DEVICE
-        x = self.dropout(x)  # No need for .to(DEVICE) here, as dropout is already on DEVICE
-
+        x = torch.cat([src_emb, metadata_emb], dim=-1) 
+        x = self.dropout(x)
+        
         for layer in self.layers:
-            x = layer(x, mask)  # No need for .to(DEVICE) here, as layers are already on DEVICE
-
-        out = self.fc_out(x)  # No need for .to(DEVICE) here, as fc_out is already on DEVICE
+            x = layer(x, mask)
+        
+        out = self.fc_out(x)
         return out
 
-    def generate(self, src, gen_len):
-        # Move input tensor to DEVICE
-        src = src.to(DEVICE)
+    def generate(self, src, metadata, gen_len, device="cuda"):
+        src = src.to(device)
+        metadata = metadata.to(device)
         
-        src_len = src.size(1)  # Get the sequence length from the input tensor
+        src_len = src.size(1)
         full_seq = src.detach().clone()
+        full_metadata = metadata.detach().clone()
         
         for _ in range(gen_len - src_len):
-            # Ensure the input to the model is on the correct device
-            trg = self.forward(full_seq[:, -self.max_len:].to(DEVICE))
+            trg = self.forward(full_seq[:, -self.max_len:], full_metadata[:, -self.max_len:], device=device)
             
-            # Get the last predicted token
-            last_pred = trg.argmax(2)[:, -1].unsqueeze(1)  # Shape: [batch_size, 1]
+            last_pred = trg.argmax(2)[:, -1].unsqueeze(1) 
             
-            # Append the predicted token to the input sequence
-            full_seq = torch.cat([full_seq, last_pred], dim=1).to(DEVICE)
+            full_seq = torch.cat([full_seq, last_pred], dim=1).to(device)
+            
+            full_metadata = torch.cat([full_metadata, full_metadata[:, -1:]], dim=1).to(device)
         
         return full_seq
