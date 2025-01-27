@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset, WeightedRandomSampler, DataLoader, random_split
 import random
+from pathlib import Path
 import json
 from processing import *
 from config import *
@@ -25,6 +26,12 @@ def get_metadata_json():
         metadata = json.load(f)
     return metadata
 
+def save_metadata_tokenizations(tokenizations):
+    meta_vocab_size = sum([len(x) for x in tokenizations.values()])
+    tokenizations['VOCAB_SIZE'] = meta_vocab_size
+    with open('F:\\GitHub\\dataset\\midi_dataset\\tokenizations.json', 'w') as f:
+            json.dump(tokenizations, f, indent=4)
+
 def floor_to_nearest_10(number):
     return (number // 10) * 10
 
@@ -38,16 +45,23 @@ class SequenceDataset(Dataset):
         """
         self.directory = directory
         self.sequence_length = BLOCK_SIZE
-        self.file_paths = [os.path.join(directory, f) for f in os.listdir(directory) if f.endswith('.npy')]
-        self.metadata = self.get_metadata()
+        self.file_paths = []
+        for root, _, files in os.walk(directory):
+            for file in files:
+                if file.endswith('.npy'):
+                    self.file_paths.append(os.path.join(root, file))
+        self.metadata_dict = self.get_metadata_dict()
 
-    def get_metadata(self):
+    def get_metadata_dict(self):
         # Load the metadata
         metadata = get_metadata_json()
 
+        # Initialize genre list and time range
         genre_list = []
         min_time, max_time = 1e9, 0
-        final_metadata = {}
+
+        # Process metadata to extract bands, decades, and genres
+        metadata_json = {}
         for data in metadata['artists']:
             band = data['name']
             decade = floor_to_nearest_10(data['year_started'])
@@ -57,22 +71,80 @@ class SequenceDataset(Dataset):
             for genre in genres:
                 if genre not in genre_list:
                     genre_list.append(genre)
-            final_metadata[band] = {'decade' : decade,
-                                    'genres' : genres}
+            metadata_json[band] = {'decade': decade, 'genres': genres}
 
-        band_tokenized = {band : idx + 1 for idx, band in enumerate(final_metadata.keys())}
-        time_tokenized = {time : idx + 1 for idx, time in enumerate(range(min_time, max_time + 1, 10))}
-        genre_tokenized = {genre : idx + 1 for idx, genre in enumerate(genre_list)}
+        # Calculate metadata tokenization ranges
+        num_decades = (max_time - min_time) // 10 + 1
+        num_genres = len(genre_list)
+        num_bands = len(metadata_json)
 
-        for band in final_metadata.keys():
-            final_metadata[band]['band'] = band_tokenized[band]
-            final_metadata[band]['decade'] = time_tokenized[final_metadata[band]['decade']]
-            final_metadata[band]['genres'] = [genre_tokenized[genre] for genre in final_metadata[band]['genres']]
+        # Define START_IDX_META for tokenization
+        START_IDX_META = {}
+        START_IDX_META['DECADE'] = 1
+        START_IDX_META['GENRE'] = START_IDX_META['DECADE'] + num_decades + 1
+        START_IDX_META['BAND'] = START_IDX_META['GENRE'] + num_genres + 1
 
-        return final_metadata
-    
+        # Tokenize bands, decades, and genres
+        band_tokenized = {band: idx + START_IDX_META['BAND'] for idx, band in enumerate(metadata_json)}
+        time_tokenized = {time: idx + START_IDX_META['DECADE'] for idx, time in enumerate(range(min_time, max_time + 1, 10))}
+        genre_tokenized = {genre: idx + START_IDX_META['GENRE'] for idx, genre in enumerate(genre_list)}
+
+        # Save tokenizations
+        tokenizations = {
+            'time_tokenized': time_tokenized,
+            'genre_tokenized': genre_tokenized,
+            'band_tokenized': band_tokenized
+        }
+        tokenizations['time_tokenized'][None] = START_IDX_META['DECADE'] - 1
+        tokenizations['genre_tokenized'][None] = START_IDX_META['GENRE'] - 1
+        tokenizations['band_tokenized'][None] = START_IDX_META['BAND'] - 1
+        save_metadata_tokenizations(tokenizations)
+
+        # Create final metadata dictionary with tokenized values
+        test_meta = {}
+        for band, elem in metadata_json.items():
+            # Tokenize and pad genres
+            genres = [genre_tokenized[genre] for genre in elem['genres']]
+            if len(genres) < 4:
+                genres += [START_IDX_META['GENRE'] - 1] * (4 - len(genres))  # Pad with 0 tokens
+
+            # Combine band, genres, and decade into a list
+            test_meta[band] = torch.tensor([band_tokenized[band]] + genres + [time_tokenized[elem['decade']]])
+
+        return test_meta
+
     def __len__(self):
         return len(self.file_paths)
+    
+    def data_augementation(sequence):
+        # Pitch shifting
+        note_r_ints = random.randint(-12, 12)
+        note_lb = START_IDX['PITCH_RES']
+        note_ub = START_IDX['PITCH_RES'] + PITCH_RES - 1
+        sequence = shift_sequence(sequence, note_r_ints, note_lb, note_ub)
+
+        # Velocity shifting
+        vel_r_ints = random.randint(-20, 20)
+        vel_lb = START_IDX['DYN_RES']
+        vel_ub = START_IDX['DYN_RES'] + DYN_RES - 1
+        sequence = shift_sequence(sequence, vel_r_ints, vel_lb, vel_ub)
+
+        # Time multiplication
+        time_r_ints = random.randint(1, 8) // 2
+        time_lb = START_IDX['TIME_RES']
+        time_ub = START_IDX['TIME_RES'] + TIME_RES - 1
+        sequence = multiply_sequence(sequence, time_r_ints, time_lb, time_ub)
+
+        # Length multiplication
+        len_lb = START_IDX['LENGTH_RES']
+        len_ub = START_IDX['LENGTH_RES'] + LENGTH_RES - 1
+        sequence = multiply_sequence(sequence, time_r_ints, len_lb, len_ub)
+
+        # tempo multiplication
+        temp_lb = START_IDX['TEMPO_RES']
+        temp_ub = START_IDX['TEMPO_RES'] + TEMPO_RES - 1
+        sequence = multiply_sequence(sequence, time_r_ints, temp_lb, temp_ub)
+        return sequence
 
     def __getitem__(self, idx):
         # Load the sequence from the .npy file
@@ -87,41 +159,19 @@ class SequenceDataset(Dataset):
             # Adjust sequence length (truncate or pad)
             elif len(sequence) > seq_len_extra:
                 ix = random.randint(0, len(sequence) - seq_len_extra - 1)
-                sequence = sequence[ix : ix + seq_len_extra]
+                sequence = sequence[ix: ix + seq_len_extra]
 
-        sequence = torch.tensor(sequence)
+        sequence = torch.tensor(sequence, device=DEVICE)
+        # sequence = torch.tensor(self.data_augementation(sequence), device=DEVICE)
 
-        # Pitch shifting
-        note_r_ints = random.randint(-12, 12)
-        note_lb = START_IDX['PITCH_RES']
-        note_ub = START_IDX['PITCH_RES'] + PITCH_RES - 1
-        sequence = shift_sequence(sequence, note_r_ints, note_lb, note_ub)
-        
-        # Velocity shifting
-        vel_r_ints = random.randint(-20, 20)
-        vel_lb = START_IDX['DYN_RES']
-        vel_ub = START_IDX['DYN_RES'] + DYN_RES  - 1
-        sequence = shift_sequence(sequence, vel_r_ints, vel_lb, vel_ub)
-        
-        # Time multiplication
-        time_r_ints = random.randint(1, 8) // 2
-        time_lb = START_IDX['TIME_RES']
-        time_ub = START_IDX['TIME_RES'] + TIME_RES  - 1
-        sequence = multiply_sequence(sequence, time_r_ints, time_lb, time_ub)
-        
-        # Length multiplication
-        len_lb = START_IDX['LENGTH_RES']
-        len_ub = START_IDX['LENGTH_RES'] + LENGTH_RES  - 1
-        sequence = multiply_sequence(sequence, time_r_ints, len_lb, len_ub)
+        # Fetch metadata for the band
+        path_parts = Path(file_path).parts
+        band_name = path_parts[-2]
+        band_metadata = self.metadata_dict[band_name]
 
-        # tempo multiplication
-        temp_lb = START_IDX['TEMPO_RES']
-        temp_ub = START_IDX['TEMPO_RES'] + TEMPO_RES - 1
-        sequence = multiply_sequence(sequence, time_r_ints, temp_lb, temp_ub)
+        # Return sequence and metadata
+        return sequence[:-1], sequence[1:], band_metadata
 
-        # Convert to tensor
-        return sequence[:-1].to(DEVICE), sequence[1:].to(DEVICE)
-    
     def file_prob(self):
         file_prob = [len(np.load(path)) for path in self.file_paths]
         file_prob /= np.sum(file_prob)
@@ -144,7 +194,6 @@ def get_train_test_dataloaders(directory, batch_size=BATCH_SIZE, test_ratio=TEST
     # Load the dataset
     dataset = SequenceDataset(directory)
 
-    #TODO Add metadata to dataloader
     file_prob = dataset.file_prob()  # Get file probabilities
 
     # Split the dataset into training and testing subsets

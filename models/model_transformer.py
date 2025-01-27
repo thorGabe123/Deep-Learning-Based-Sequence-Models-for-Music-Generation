@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+from config import *
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -96,26 +96,61 @@ class SimpleTransformer(nn.Module):
         self.embedding = nn.Embedding(src_vocab_size, d_model).to(device)
         self.metadata_embedding = nn.Embedding(metadata_vocab_size, d_model).to(device)  # Metadata embedding layer
         self.positional_encoding = PositionalEncoding(d_model, max_len, device)
-        self.layers = nn.ModuleList([TransformerBlock(d_model * 2, num_heads, d_ff, dropout).to(device) for _ in range(num_layers)])  # Adjust for concatenated embeddings
-        self.fc_out = nn.Linear(d_model * 2, src_vocab_size).to(device)  # Adjust for concatenated embeddings
+        self.layers = nn.ModuleList([TransformerBlock(d_model, num_heads, d_ff, dropout).to(device) for _ in range(num_layers)])  # Adjust for concatenated embeddings
+        self.fc_out = nn.Linear(d_model, src_vocab_size).to(device)  # Adjust for concatenated embeddings
         self.dropout = nn.Dropout(dropout).to(device)
         self.max_len = max_len
+        self.M = torch.stack((torch.cat((torch.zeros(START_IDX['DYN_RES']), torch.ones(DYN_RES), torch.zeros(VOCAB_SIZE - START_IDX['LENGTH_RES']))),
+            torch.cat((torch.zeros(START_IDX['PITCH_RES']), torch.ones(PITCH_RES), torch.zeros(VOCAB_SIZE - START_IDX['DYN_RES']))),
+            torch.cat((torch.zeros(START_IDX['LENGTH_RES']), torch.ones(LENGTH_RES), torch.zeros(VOCAB_SIZE - START_IDX['TIME_RES']))),
+            torch.cat((torch.zeros(START_IDX['TIME_RES']), torch.ones(TIME_RES), torch.zeros(VOCAB_SIZE - START_IDX['CHANNEL_RES']))),
+            torch.cat((torch.zeros(START_IDX['CHANNEL_RES']), torch.ones(CHANNEL_RES), torch.zeros(VOCAB_SIZE - START_IDX['TEMPO_RES']))),
+            torch.cat((torch.zeros(START_IDX['TEMPO_RES']), torch.ones(TEMPO_RES), torch.zeros(VOCAB_SIZE - START_IDX['TEMPO_RES'] - TEMPO_RES))))).to(device)
 
     def forward(self, src, metadata, mask=None, device="cuda"):
         src = src.to(device)
+        # start_idx = [self.get_idx(x) for x in src[:, 0]]
         metadata = metadata.to(device)
-        metadata_emb = self.metadata_embedding(metadata)
-        src_emb = self.embedding(src)
-        src_emb = self.positional_encoding(src_emb)
+        # Embed the input sequence
+        src_emb = self.embedding(src)  # Shape: [batch_size, seq_len, d_model]
+        src_emb = self.positional_encoding(src_emb)  # Shape: [batch_size, seq_len, d_model]
+        metadata_emb = self.metadata_embedding(metadata)  # Shape: [batch_size, 6, d_model]
         
-        x = torch.cat([src_emb, metadata_emb], dim=-1) 
+        x = torch.cat([metadata_emb, src_emb], dim=-2)  # Shape: [batch_size, seq_len + 6, d_model]
         x = self.dropout(x)
         
+        # Pass through transformer layers
         for layer in self.layers:
             x = layer(x, mask)
         
-        out = self.fc_out(x)
+        # Final output layer
+        out = self.fc_out(x)  # Shape: [batch_size, seq_len, src_vocab_size]
+        out = out[:, -src_emb.size(1):]
+        
+        # # Restrict output based on M and start_idx
+        # batch_size, seq_len, vocab_size = out.shape
+        # restricted_out = torch.zeros_like(out).to(device)  # Create a zero tensor with the same shape
+        
+        # for i in range(batch_size):
+        #     for j in range(seq_len):
+        #         idx = start_idx[i]
+        #         restricted_out[i, j, :] = out[i, j, :] * self.M[idx, :]
+
         return out
+    
+    def get_idx(self, num):
+        if START_IDX['PITCH_RES'] <= num < START_IDX['DYN_RES']:
+            return 1
+        elif START_IDX['DYN_RES'] <= num < START_IDX['LENGTH_RES']:
+            return 0
+        elif START_IDX['LENGTH_RES'] <= num < START_IDX['TIME_RES']:
+            return 2
+        elif START_IDX['TIME_RES'] <= num < START_IDX['CHANNEL_RES']:
+            return 3
+        elif START_IDX['CHANNEL_RES'] <= num < START_IDX['TEMPO_RES']:
+            return 4
+        elif START_IDX['TEMPO_RES'] <= num < VOCAB_SIZE:
+            return 5
 
     def generate(self, src, metadata, gen_len, device="cuda"):
         src = src.to(device)
@@ -126,12 +161,17 @@ class SimpleTransformer(nn.Module):
         full_metadata = metadata.detach().clone()
         
         for _ in range(gen_len - src_len):
-            trg = self.forward(full_seq[:, -self.max_len:], full_metadata[:, -self.max_len:], device=device)
+            trg = self.forward(full_seq[:, -self.max_len:], full_metadata, device=device)
             
             last_pred = trg.argmax(2)[:, -1].unsqueeze(1) 
             
             full_seq = torch.cat([full_seq, last_pred], dim=1).to(device)
             
-            full_metadata = torch.cat([full_metadata, full_metadata[:, -1:]], dim=1).to(device)
+            # Repeat the last metadata for the new token
+            full_metadata = {
+                'decade': full_metadata['decade'],
+                'genres': full_metadata['genres'],
+                'band': full_metadata['band']
+            }
         
         return full_seq

@@ -28,13 +28,13 @@ def preprocess_midi_files(midi_folder, preprocess_folder):
     os.makedirs(preprocess_folder, exist_ok=True)
 
     for path in midi_paths:
-        file_name = Path(path).stem
         path_parts = Path(path).parts
+        band_name = path_parts[-2]
+        song_name = Path(path).stem
 
-        # Extract the desired parts
-        folder_name = path_parts[-2] 
-        file_name = Path(path).stem
-        new_path = os.path.join(preprocess_folder, f'{folder_name}_{file_name}')
+        os.makedirs(os.path.join(preprocess_folder, band_name), exist_ok=True)
+
+        new_path = os.path.join(preprocess_folder, band_name, song_name)
         
         print(' ', end='[{}]'.format(path), flush=True)
 
@@ -51,7 +51,7 @@ def preprocess_midi_files(midi_folder, preprocess_folder):
             if len(midi_notes) == 0:
                 continue
             token_seq = encode(midi_notes)
-            np.save(new_path, token_seq)
+            np.save(new_path + '.npy', token_seq)
         except:
             continue
 
