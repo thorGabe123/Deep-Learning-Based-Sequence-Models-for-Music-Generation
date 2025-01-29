@@ -100,12 +100,12 @@ class SimpleTransformer(nn.Module):
         self.fc_out = nn.Linear(d_model, src_vocab_size).to(device)  # Adjust for concatenated embeddings
         self.dropout = nn.Dropout(dropout).to(device)
         self.max_len = max_len
-        self.M = torch.stack((torch.cat((torch.zeros(START_IDX['DYN_RES']), torch.ones(DYN_RES), torch.zeros(VOCAB_SIZE - START_IDX['LENGTH_RES']))),
-            torch.cat((torch.zeros(START_IDX['PITCH_RES']), torch.ones(PITCH_RES), torch.zeros(VOCAB_SIZE - START_IDX['DYN_RES']))),
-            torch.cat((torch.zeros(START_IDX['LENGTH_RES']), torch.ones(LENGTH_RES), torch.zeros(VOCAB_SIZE - START_IDX['TIME_RES']))),
-            torch.cat((torch.zeros(START_IDX['TIME_RES']), torch.ones(TIME_RES), torch.zeros(VOCAB_SIZE - START_IDX['CHANNEL_RES']))),
-            torch.cat((torch.zeros(START_IDX['CHANNEL_RES']), torch.ones(CHANNEL_RES), torch.zeros(VOCAB_SIZE - START_IDX['TEMPO_RES']))),
-            torch.cat((torch.zeros(START_IDX['TEMPO_RES']), torch.ones(TEMPO_RES), torch.zeros(VOCAB_SIZE - START_IDX['TEMPO_RES'] - TEMPO_RES))))).to(device)
+        # self.M = torch.stack((torch.cat((torch.zeros(START_IDX['DYN_RES']), torch.ones(DYN_RES), torch.zeros(VOCAB_SIZE - START_IDX['LENGTH_RES']))),
+        #     torch.cat((torch.zeros(START_IDX['PITCH_RES']), torch.ones(PITCH_RES), torch.zeros(VOCAB_SIZE - START_IDX['DYN_RES']))),
+        #     torch.cat((torch.zeros(START_IDX['LENGTH_RES']), torch.ones(LENGTH_RES), torch.zeros(VOCAB_SIZE - START_IDX['TIME_RES']))),
+        #     torch.cat((torch.zeros(START_IDX['TIME_RES']), torch.ones(TIME_RES), torch.zeros(VOCAB_SIZE - START_IDX['CHANNEL_RES']))),
+        #     torch.cat((torch.zeros(START_IDX['CHANNEL_RES']), torch.ones(CHANNEL_RES), torch.zeros(VOCAB_SIZE - START_IDX['TEMPO_RES']))),
+        #     torch.cat((torch.zeros(START_IDX['TEMPO_RES']), torch.ones(TEMPO_RES), torch.zeros(VOCAB_SIZE - START_IDX['TEMPO_RES'] - TEMPO_RES))))).to(device)
 
     def forward(self, src, metadata, mask=None, device="cuda"):
         src = src.to(device)
@@ -116,8 +116,9 @@ class SimpleTransformer(nn.Module):
         src_emb = self.positional_encoding(src_emb)  # Shape: [batch_size, seq_len, d_model]
         metadata_emb = self.metadata_embedding(metadata)  # Shape: [batch_size, 6, d_model]
         
-        x = torch.cat([metadata_emb, src_emb], dim=-2)  # Shape: [batch_size, seq_len + 6, d_model]
-        x = self.dropout(x)
+        # x = torch.cat([metadata_emb, src_emb], dim=-2)  # Shape: [batch_size, seq_len + 6, d_model]
+        # x = self.dropout(src_emb)
+        x = src_emb
         
         # Pass through transformer layers
         for layer in self.layers:
@@ -125,7 +126,7 @@ class SimpleTransformer(nn.Module):
         
         # Final output layer
         out = self.fc_out(x)  # Shape: [batch_size, seq_len, src_vocab_size]
-        out = out[:, -src_emb.size(1):]
+        # out = out[:, -src_emb.size(1):]
         
         # # Restrict output based on M and start_idx
         # batch_size, seq_len, vocab_size = out.shape

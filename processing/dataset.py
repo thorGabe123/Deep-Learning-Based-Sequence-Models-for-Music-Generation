@@ -116,7 +116,8 @@ class SequenceDataset(Dataset):
     def __len__(self):
         return len(self.file_paths)
     
-    def data_augementation(sequence):
+    def data_augementation(self, sequence):
+        sequence = torch.tensor(sequence, device=DEVICE)
         # Pitch shifting
         note_r_ints = random.randint(-12, 12)
         note_lb = START_IDX['PITCH_RES']
@@ -161,8 +162,8 @@ class SequenceDataset(Dataset):
                 ix = random.randint(0, len(sequence) - seq_len_extra - 1)
                 sequence = sequence[ix: ix + seq_len_extra]
 
-        sequence = torch.tensor(sequence, device=DEVICE)
-        # sequence = torch.tensor(self.data_augementation(sequence), device=DEVICE)
+        # sequence = torch.tensor(sequence, device=DEVICE)
+        sequence = self.data_augementation(sequence)
 
         # Fetch metadata for the band
         path_parts = Path(file_path).parts

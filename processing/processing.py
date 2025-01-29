@@ -98,6 +98,8 @@ def encode(midi_notes):
 
     token_seq = []
     time_prev = 0
+    prev_channel = None
+    prev_tempo = None
     for idx, m in enumerate(midi_notes):
         dynamic = START_IDX['DYN_RES'] + min(m.dynamic, DYN_RES - 1)
         pitch = START_IDX['PITCH_RES'] + min(m.pitch, PITCH_RES - 1)
@@ -106,14 +108,19 @@ def encode(midi_notes):
         channel = START_IDX['CHANNEL_RES'] + min(m.channel, CHANNEL_RES - 1)
         tempo = START_IDX['TEMPO_RES'] + min(m.tempo, TEMPO_RES - 1)
 
-        token_seq.extend([dynamic, 
-                          pitch, 
-                          length, 
-                          time_delta,
-                          channel,
-                          tempo])
+        token_seq.extend([pitch, 
+                            dynamic,  
+                            length])
+        if m.time_start - time_prev != 0:
+            token_seq.append(time_delta)
+        if m.channel != prev_channel:
+            token_seq.append(channel)
+        if m.tempo != prev_tempo:
+            token_seq.append(tempo)
 
         time_prev = m.time_start
+        prev_channel = m.channel
+        prev_tempo = m.tempo
 
     return token_seq
 
