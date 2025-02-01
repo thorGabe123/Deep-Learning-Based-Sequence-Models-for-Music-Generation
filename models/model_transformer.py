@@ -100,25 +100,19 @@ class Transformer(nn.Module):
         self.ln_f = nn.LayerNorm(n_embd)  # final layer norm
         self.lm_head = nn.Linear(n_embd, vocab_size)
 
-    def forward(self, idx, targets=None):
-        B, T = idx.shape
+    def forward(self, idx):
+        B, T, D = idx.shape # batch size, sequence length, number of dataelements
 
-        # Embedding lookups for tokens and positions
-        x = self.token_embedding_table(idx)  # Shape: (B, T, C)
-        x = self.positional_encoding(x)
+        x = torch.tensor([], device=DEVICE)
+        for i in range(D):
+            temp = self.token_embedding_table(idx[:, :, i])
+            temp = self.positional_encoding(temp)
+            x = torch.concat([x, temp])
 
         # Transformer blocks
         x = self.blocks(x)  # Shape: (B, T, C)
         x = self.ln_f(x)    # Shape: (B, T, C)
         logits = self.lm_head(x)  # Shape: (B, T, vocab_size)
 
-        # Calculate loss if targets are provided
-        if targets is None:
-            loss = None
-        else:
-            logits = logits.view(B * T, -1)
-            targets = targets.view(B * T)
-            loss = F.cross_entropy(logits, targets)
-
-        logits = logits.view(B, T, -1)
-        return logits, loss
+        logits = logits.view(B, T, D, -1)
+        return logits

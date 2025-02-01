@@ -6,6 +6,7 @@ from pathlib import Path
 import shutil
 import re
 from config import *
+import json
 
 def find_files_by_extensions(root, exts=[]):
     def _has_ext(name):
@@ -39,7 +40,7 @@ def preprocess_midi_files(midi_folder, preprocess_folder):
         print(' ', end='[{}]'.format(path), flush=True)
 
         # Check if the file already exists or if a file with a similar name exists
-        if os.path.exists(new_path + '.npy'):
+        if os.path.exists(new_path + '.json'):
             continue
 
         # Check if any file in the preprocess_folder contains the new_path as a substring
@@ -51,7 +52,8 @@ def preprocess_midi_files(midi_folder, preprocess_folder):
             if len(midi_notes) == 0:
                 continue
             token_seq = encode(midi_notes)
-            np.save(new_path + '.npy', token_seq)
+            with open(new_path + '.json', 'w', encoding='utf-8') as f:
+                json.dump(token_seq, f, ensure_ascii=False, indent=4)
         except:
             continue
 
@@ -71,8 +73,8 @@ def extract_midi(path):
                                         time_start=abs(n.start), 
                                         time_end=abs(n.end), 
                                         dynamic=abs(n.velocity), 
-                                        channel=abs(channel), 
-                                        tempo=round(tempo_bpm[idx])))
+                                        channel=abs(int(channel)), 
+                                        tempo=round(int(tempo_bpm[idx]))))
 
     midi_notes = list(set(midi_notes))
     midi_notes = sorted(midi_notes, key=lambda note: note.time_start)
@@ -96,7 +98,13 @@ def adjust_note_time(midi_notes):
 def encode(midi_notes):
     adjust_note_time(midi_notes)
 
-    token_seq = []
+    token_seq = {"dynamic" : [],
+                 "pitch" : [],
+                 "length" : [],
+                 "time_delta" : [],
+                 "channel" : [],
+                 "tempo" : []}
+
     time_prev = 0
     for idx, m in enumerate(midi_notes):
         dynamic = START_IDX['DYN_RES'] + min(m.dynamic, DYN_RES - 1)
@@ -106,12 +114,12 @@ def encode(midi_notes):
         channel = START_IDX['CHANNEL_RES'] + min(m.channel, CHANNEL_RES - 1)
         tempo = START_IDX['TEMPO_RES'] + min(m.tempo, TEMPO_RES - 1)
 
-        token_seq.extend([dynamic, 
-                          pitch, 
-                          length, 
-                          time_delta,
-                          channel,
-                          tempo])
+        token_seq["dynamic"].append(dynamic)
+        token_seq["pitch"].append(pitch)
+        token_seq["length"].append(length)
+        token_seq["time_delta"].append(time_delta)
+        token_seq["channel"].append(channel)
+        token_seq["tempo"].append(tempo) 
 
         time_prev = m.time_start
 

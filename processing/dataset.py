@@ -48,7 +48,7 @@ class SequenceDataset(Dataset):
         self.file_paths = []
         for root, _, files in os.walk(directory):
             for file in files:
-                if file.endswith('.npy'):
+                if file.endswith('.json'):
                     self.file_paths.append(os.path.join(root, file))
         self.metadata_dict = self.get_metadata_dict()
 
@@ -116,64 +116,75 @@ class SequenceDataset(Dataset):
     def __len__(self):
         return len(self.file_paths)
     
-    def data_augementation(sequence):
-        # Pitch shifting
-        note_r_ints = random.randint(-12, 12)
-        note_lb = START_IDX['PITCH_RES']
-        note_ub = START_IDX['PITCH_RES'] + PITCH_RES - 1
-        sequence = shift_sequence(sequence, note_r_ints, note_lb, note_ub)
-
-        # Velocity shifting
-        vel_r_ints = random.randint(-20, 20)
-        vel_lb = START_IDX['DYN_RES']
-        vel_ub = START_IDX['DYN_RES'] + DYN_RES - 1
-        sequence = shift_sequence(sequence, vel_r_ints, vel_lb, vel_ub)
-
-        # Time multiplication
-        time_r_ints = random.randint(1, 8) // 2
-        time_lb = START_IDX['TIME_RES']
-        time_ub = START_IDX['TIME_RES'] + TIME_RES - 1
-        sequence = multiply_sequence(sequence, time_r_ints, time_lb, time_ub)
-
-        # Length multiplication
-        len_lb = START_IDX['LENGTH_RES']
-        len_ub = START_IDX['LENGTH_RES'] + LENGTH_RES - 1
-        sequence = multiply_sequence(sequence, time_r_ints, len_lb, len_ub)
-
-        # tempo multiplication
-        temp_lb = START_IDX['TEMPO_RES']
-        temp_ub = START_IDX['TEMPO_RES'] + TEMPO_RES - 1
-        sequence = multiply_sequence(sequence, time_r_ints, temp_lb, temp_ub)
-        return sequence
-
     def __getitem__(self, idx):
         # Load the sequence from the .npy file
         file_path = self.file_paths[idx]
-        sequence = np.load(file_path)
+        with open(file_path) as json_data:
+            seq_dict = json.load(json_data)
+        for key in seq_dict.keys():
+            seq_dict[key] = torch.tensor(seq_dict[key], device=DEVICE)
         seq_len_extra = self.sequence_length + 1
+        data_len = len(seq_dict["pitch"])
 
         if self.sequence_length:
-            if seq_len_extra > len(sequence):
-                padding = np.zeros(seq_len_extra - len(sequence), dtype=np.int64)
-                sequence = np.concatenate([sequence, padding])
+            if seq_len_extra > data_len:
+                padding = np.zeros(seq_len_extra - data_len, dtype=np.int64)
+                for key in seq_dict.keys():
+                    seq_dict[key] = np.concatenate([seq_dict[key], padding])
             # Adjust sequence length (truncate or pad)
-            elif len(sequence) > seq_len_extra:
-                ix = random.randint(0, len(sequence) - seq_len_extra - 1)
-                sequence = sequence[ix: ix + seq_len_extra]
+            elif data_len > seq_len_extra:
+                ix = random.randint(0, data_len - seq_len_extra - 1)
+                for key in seq_dict.keys():
+                    seq_dict[key] = seq_dict[key][ix: ix + seq_len_extra]
 
-        sequence = torch.tensor(sequence, device=DEVICE)
-        # sequence = torch.tensor(self.data_augementation(sequence), device=DEVICE)
+        # sequence = torch.tensor(sequence, device=DEVICE)
+        seq_dict = self.data_augementation(seq_dict)
 
         # Fetch metadata for the band
         path_parts = Path(file_path).parts
         band_name = path_parts[-2]
         band_metadata = self.metadata_dict[band_name]
 
+        sequence = torch.stack([seq_dict["pitch"], seq_dict["dynamic"], seq_dict["time_delta"], seq_dict["length"], seq_dict["channel"], seq_dict["tempo"]], dim=1)
+
         # Return sequence and metadata
-        return sequence[:-1], sequence[1:], band_metadata
+        return sequence, band_metadata
+    
+    def data_augementation(self, seq_dict):
+        # Pitch shifting
+        note_r_ints = random.randint(-12, 12)
+        note_lb = START_IDX['PITCH_RES']
+        note_ub = START_IDX['PITCH_RES'] + PITCH_RES - 1
+        seq_dict["pitch"] = shift_sequence(seq_dict["pitch"], note_r_ints, note_lb, note_ub)
+
+        # Velocity shifting
+        vel_r_ints = random.randint(-20, 20)
+        vel_lb = START_IDX['DYN_RES']
+        vel_ub = START_IDX['DYN_RES'] + DYN_RES - 1
+        seq_dict["dynamic"] = shift_sequence(seq_dict["dynamic"], vel_r_ints, vel_lb, vel_ub)
+
+        # Time multiplication
+        time_r_ints = random.randint(1, 8) // 2
+        time_lb = START_IDX['TIME_RES']
+        time_ub = START_IDX['TIME_RES'] + TIME_RES - 1
+        seq_dict["time_delta"] = multiply_sequence(seq_dict["time_delta"], time_r_ints, time_lb, time_ub)
+
+        # Length multiplication
+        len_lb = START_IDX['LENGTH_RES']
+        len_ub = START_IDX['LENGTH_RES'] + LENGTH_RES - 1
+        seq_dict["length"] = multiply_sequence(seq_dict["length"], time_r_ints, len_lb, len_ub)
+
+        # tempo multiplication
+        temp_lb = START_IDX['TEMPO_RES']
+        temp_ub = START_IDX['TEMPO_RES'] + TEMPO_RES - 1
+        seq_dict["tempo"] = multiply_sequence(seq_dict["tempo"], time_r_ints, temp_lb, temp_ub)
+        return seq_dict
 
     def file_prob(self):
-        file_prob = [len(np.load(path)) for path in self.file_paths]
+        file_prob = []
+        for path in self.file_paths:
+            with open(path) as json_data:
+                file_prob.append(len(json.load(json_data)["pitch"]))
         file_prob /= np.sum(file_prob)
         return file_prob
 
