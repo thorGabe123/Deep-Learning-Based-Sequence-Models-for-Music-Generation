@@ -112,13 +112,5 @@ class Transformer(nn.Module):
         x = self.ln_f(x)    # Shape: (B, T, C)
         logits = self.lm_head(x)  # Shape: (B, T, vocab_size)
 
-        # Calculate loss if targets are provided
-        if targets is None:
-            loss = None
-        else:
-            logits = logits.view(B * T, -1)
-            targets = targets.view(B * T)
-            loss = F.cross_entropy(logits, targets)
-
         logits = logits.view(B, T, -1)
-        return logits, loss
+        return logits
