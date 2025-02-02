@@ -3,6 +3,14 @@ import torch.nn as nn
 from config import *
 import torch.nn.functional as F
 
+def generate_matrix(n: int, x: int) -> torch.Tensor:
+    matrix = torch.zeros((n, n), dtype=torch.float32, device=DEVICE)
+    
+    for i in range(n):
+        matrix[i, : ((i // x) + 1) * x] = 1.0
+    
+    return matrix
+
 class Head(nn.Module):
     """ one head of self-attention """
 
@@ -11,7 +19,7 @@ class Head(nn.Module):
         self.key = nn.Linear(n_embd, head_size, bias=False)
         self.query = nn.Linear(n_embd, head_size, bias=False)
         self.value = nn.Linear(n_embd, head_size, bias=False)
-        self.register_buffer('tril', torch.tril(torch.ones(block_size, block_size)))
+        self.register_buffer('tril', generate_matrix(block_size, 6))
 
         self.dropout = nn.Dropout(DROPOUT)
 
@@ -81,8 +89,8 @@ class PositionalEncoding(nn.Module):
         self.encoding = torch.zeros(max_len, n_embd).to(device)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1).to(device)
         div_term = torch.exp(torch.arange(0, n_embd, 2).float() * (-torch.log(torch.tensor(10000.0)) / n_embd)).to(device)
-        self.encoding[:, 0::2] = torch.sin(position * div_term)
-        self.encoding[:, 1::2] = torch.cos(position * div_term)
+        self.encoding[:, 0::2] = torch.sin(position // 6 * div_term)
+        self.encoding[:, 1::2] = torch.cos(position // 6 * div_term)
         self.encoding = self.encoding.unsqueeze(0)
     
     def forward(self, x):
@@ -112,13 +120,5 @@ class Transformer(nn.Module):
         x = self.ln_f(x)    # Shape: (B, T, C)
         logits = self.lm_head(x)  # Shape: (B, T, vocab_size)
 
-        # Calculate loss if targets are provided
-        if targets is None:
-            loss = None
-        else:
-            logits = logits.view(B * T, -1)
-            targets = targets.view(B * T)
-            loss = F.cross_entropy(logits, targets)
-
         logits = logits.view(B, T, -1)
-        return logits, loss
+        return logits

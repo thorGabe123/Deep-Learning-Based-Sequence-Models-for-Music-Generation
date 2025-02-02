@@ -106,8 +106,8 @@ def encode(midi_notes):
         channel = START_IDX['CHANNEL_RES'] + min(m.channel, CHANNEL_RES - 1)
         tempo = START_IDX['TEMPO_RES'] + min(m.tempo, TEMPO_RES - 1)
 
-        token_seq.extend([dynamic, 
-                          pitch, 
+        token_seq.extend([pitch,
+                          dynamic, 
                           length, 
                           time_delta,
                           channel,
