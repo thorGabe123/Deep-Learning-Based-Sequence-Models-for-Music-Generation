@@ -6,7 +6,7 @@ import random
 from pathlib import Path
 import json
 from processing import *
-from config import *
+import configs.common as cc
 
 
 def shift_sequence(sequence, rand_int, lower_bound, upper_bound):
@@ -44,7 +44,7 @@ class SequenceDataset(Dataset):
                                             truncated or padded to this length. Default is None.
         """
         self.directory = directory
-        self.sequence_length = BLOCK_SIZE
+        self.sequence_length = cc.config.values.block_len
         self.file_paths = []
         for root, _, files in os.walk(directory):
             for file in files:
@@ -119,30 +119,30 @@ class SequenceDataset(Dataset):
     def data_augementation(self, sequence):
         # Pitch shifting
         note_r_ints = random.randint(-12, 12)
-        note_lb = START_IDX['PITCH_RES']
-        note_ub = START_IDX['PITCH_RES'] + PITCH_RES - 1
+        note_lb = cc.start_idx['pitch']
+        note_ub = cc.start_idx['pitch'] + cc.config.discretization.pitch - 1
         sequence = shift_sequence(sequence, note_r_ints, note_lb, note_ub)
 
         # Velocity shifting
         vel_r_ints = random.randint(-20, 20)
-        vel_lb = START_IDX['DYN_RES']
-        vel_ub = START_IDX['DYN_RES'] + DYN_RES - 1
+        vel_lb = cc.start_idx['dyn']
+        vel_ub = cc.start_idx['dyn'] + cc.config.discretization.dyn - 1
         sequence = shift_sequence(sequence, vel_r_ints, vel_lb, vel_ub)
 
         # Time multiplication
         time_r_ints = random.randint(1, 8) // 2
-        time_lb = START_IDX['TIME_RES']
-        time_ub = START_IDX['TIME_RES'] + TIME_RES - 1
+        time_lb = cc.start_idx['time']
+        time_ub = cc.start_idx['time'] + cc.config.discretization.time - 1
         sequence = multiply_sequence(sequence, time_r_ints, time_lb, time_ub)
 
         # Length multiplication
-        len_lb = START_IDX['LENGTH_RES']
-        len_ub = START_IDX['LENGTH_RES'] + LENGTH_RES - 1
+        len_lb = cc.start_idx['length']
+        len_ub = cc.start_idx['length'] + cc.config.discretization.length - 1
         sequence = multiply_sequence(sequence, time_r_ints, len_lb, len_ub)
 
         # tempo multiplication
-        temp_lb = START_IDX['TEMPO_RES']
-        temp_ub = START_IDX['TEMPO_RES'] + TEMPO_RES - 1
+        temp_lb = cc.start_idx['tempo']
+        temp_ub = cc.start_idx['tempo'] + cc.config.discretization.tempo - 1
         sequence = multiply_sequence(sequence, time_r_ints, temp_lb, temp_ub)
         return sequence
 
@@ -161,7 +161,7 @@ class SequenceDataset(Dataset):
                 ix = random.randint(0, (len(sequence) - seq_len_extra - 1) // 6)
                 sequence = sequence[ix * 6: ix * 6 + seq_len_extra]
 
-        sequence = torch.tensor(sequence, device=DEVICE)
+        sequence = torch.tensor(sequence, device=cc.config.values.device)
         sequence = self.data_augementation(sequence)
 
         # Fetch metadata for the band
@@ -177,7 +177,7 @@ class SequenceDataset(Dataset):
         file_prob /= np.sum(file_prob)
         return file_prob
 
-def get_train_test_dataloaders(directory, batch_size=BATCH_SIZE, test_ratio=TEST_RATIO):
+def get_train_test_dataloaders(directory, batch_size=cc.config.values.batch_size, test_ratio=cc.config.values.test_ratio):
     """
     Create training and testing DataLoaders with WeightedRandomSampler.
 
@@ -228,3 +228,8 @@ def get_train_test_dataloaders(directory, batch_size=BATCH_SIZE, test_ratio=TEST
     )
 
     return train_dataloader, test_dataloader
+
+def get_metadata_vocab_size():
+    with open('F:\\GitHub\\dataset\\midi_dataset\\tokenizations.json', 'r') as f:
+        tokenizations = json.load(f)
+    return tokenizations['VOCAB_SIZE']

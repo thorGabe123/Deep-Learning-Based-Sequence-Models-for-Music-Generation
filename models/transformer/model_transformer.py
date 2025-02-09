@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from config import *
+from configs.config_transformer.config import *
 import torch.nn.functional as F
 
 def generate_matrix(n: int, x: int) -> torch.Tensor:

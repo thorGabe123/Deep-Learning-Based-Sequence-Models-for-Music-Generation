@@ -1,0 +1,6 @@
+model_values:
+  block_size: 252
+  n_embd: 128
+  n_head: 8
+  n_layer: 8
+  feedforward_dim: 2048

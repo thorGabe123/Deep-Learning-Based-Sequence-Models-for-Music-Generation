@@ -5,7 +5,7 @@ from note import MIDI_note
 from pathlib import Path
 import shutil
 import re
-from config import *
+import configs.common as cc
 
 def find_files_by_extensions(root, exts=[]):
     def _has_ext(name):
@@ -80,7 +80,7 @@ def extract_midi(path):
     return midi_notes
 
 def adjust_note_time(midi_notes):
-    res_per_beat = BAR_RES
+    res_per_beat = cc.config.resolution.bar_res
     current_beats = 0
     prev_time = 0
     prev_tempo = midi_notes[0].tempo
@@ -99,12 +99,12 @@ def encode(midi_notes):
     token_seq = []
     time_prev = 0
     for idx, m in enumerate(midi_notes):
-        dynamic = START_IDX['DYN_RES'] + min(m.dynamic, DYN_RES - 1)
-        pitch = START_IDX['PITCH_RES'] + min(m.pitch, PITCH_RES - 1)
-        length = START_IDX['LENGTH_RES'] + min(m.time_end - m.time_start, LENGTH_RES - 1)
-        time_delta = START_IDX['TIME_RES'] + min(m.time_start - time_prev, TIME_RES - 1)
-        channel = START_IDX['CHANNEL_RES'] + min(m.channel, CHANNEL_RES - 1)
-        tempo = START_IDX['TEMPO_RES'] + min(m.tempo, TEMPO_RES - 1)
+        dynamic = cc.start_idx['dyn'] + min(m.dynamic, cc.config.discretizations.dyn - 1)
+        pitch = cc.start_idx['pitch'] + min(m.pitch, cc.config.discretizations.pitch - 1)
+        length = cc.start_idx['length'] + min(m.time_end - m.time_start, cc.config.discretizations.length - 1)
+        time_delta = cc.start_idx['time'] + min(m.time_start - time_prev, cc.config.discretizations.time - 1)
+        channel = cc.start_idx['channel'] + min(m.channel, cc.config.discretizations.channel - 1)
+        tempo = cc.start_idx['tempo'] + min(m.tempo, cc.config.discretizations.tempo - 1)
 
         token_seq.extend([pitch,
                           dynamic, 
@@ -118,7 +118,7 @@ def encode(midi_notes):
     return token_seq
 
 def revert_note_time(midi_notes):
-    res_per_beat = BAR_RES
+    res_per_beat = cc.config.resolution.bar_res
     prev_time = 0
     prev_beat = 0
     prev_tempo = midi_notes[0].tempo
@@ -141,12 +141,12 @@ def decode(token_seq):
     prev_time = 0
 
     for i in range(0, len(token_seq), 6):  # Process tokens in groups of 6
-        dynamic = token_seq[i] - START_IDX['DYN_RES']
-        pitch = token_seq[i + 1] - START_IDX['PITCH_RES']
-        length = token_seq[i + 2] - START_IDX['LENGTH_RES']
-        time_delta = token_seq[i + 3] - START_IDX['TIME_RES']
-        channel = token_seq[i + 4] - START_IDX['CHANNEL_RES']
-        tempo = token_seq[i + 5] - START_IDX['TEMPO_RES']
+        dynamic = token_seq[i] - cc.start_idx['dyn']
+        pitch = token_seq[i + 1] - cc.start_idx['pitch']
+        length = token_seq[i + 2] - cc.start_idx['length']
+        time_delta = token_seq[i + 3] - cc.start_idx['time']
+        channel = token_seq[i + 4] - cc.start_idx['channel']
+        tempo = token_seq[i + 5] - cc.start_idx['tempo']
 
         note = MIDI_note(dynamic=dynamic,
             pitch = pitch,
