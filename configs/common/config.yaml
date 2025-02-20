@@ -1,13 +1,13 @@
 discretization:
   pitch: 128
   dyn: 128
-  length: 400
-  time: 400
+  length: 100
+  time: 100
   channel: 128
-  tempo: 300
+  tempo: 250
 
 resolution:
-  bar_res: 12
+  bar_res: 24
   
 values:
   block_len: 128

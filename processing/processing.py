@@ -63,7 +63,7 @@ def extract_midi(path):
 
     midi_notes = []
     for inst in mid.instruments:
-        channel = inst.program
+        channel = int(inst.program)
         for n in inst.notes:
             idx = next((i for i, t in enumerate(tempo_bpm) if tempo_times[i] <= n.start < tempo_times[i + 1]))
         
@@ -86,12 +86,15 @@ def adjust_note_time(midi_notes):
     prev_tempo = midi_notes[0].tempo
     for idx, n in enumerate(midi_notes):
         resolution = 60 / prev_tempo / res_per_beat
-        current_beats += round((n.time_start - prev_time) / resolution)
-        future_beats = current_beats + round((n.time_end - n.time_start) / resolution)
+        current_beats += (n.time_start - prev_time) / resolution
+        future_beats = current_beats + (n.time_end - n.time_start) / resolution
         prev_time = n.time_start
         prev_tempo = n.tempo
-        midi_notes[idx].time_start = current_beats
-        midi_notes[idx].time_end = future_beats
+        midi_notes[idx].time_start = int(current_beats)
+        if int(future_beats) == int(current_beats):
+            midi_notes[idx].time_end = int(current_beats) + 1
+        else:
+            midi_notes[idx].time_end = int(future_beats)
 
 def encode(midi_notes):
     adjust_note_time(midi_notes)
@@ -99,12 +102,12 @@ def encode(midi_notes):
     token_seq = []
     time_prev = 0
     for idx, m in enumerate(midi_notes):
-        dynamic = cc.start_idx['dyn'] + min(m.dynamic, cc.config.discretizations.dyn - 1)
-        pitch = cc.start_idx['pitch'] + min(m.pitch, cc.config.discretizations.pitch - 1)
-        length = cc.start_idx['length'] + min(m.time_end - m.time_start, cc.config.discretizations.length - 1)
-        time_delta = cc.start_idx['time'] + min(m.time_start - time_prev, cc.config.discretizations.time - 1)
-        channel = cc.start_idx['channel'] + min(m.channel, cc.config.discretizations.channel - 1)
-        tempo = cc.start_idx['tempo'] + min(m.tempo, cc.config.discretizations.tempo - 1)
+        dynamic = cc.start_idx['dyn'] + min(m.dynamic, cc.config.discretization.dyn - 1)
+        pitch = cc.start_idx['pitch'] + min(m.pitch, cc.config.discretization.pitch - 1)
+        length = cc.start_idx['length'] + min(m.time_end - m.time_start, cc.config.discretization.length - 1)
+        time_delta = cc.start_idx['time'] + min(m.time_start - time_prev, cc.config.discretization.time - 1)
+        channel = cc.start_idx['channel'] + min(m.channel, cc.config.discretization.channel - 1)
+        tempo = cc.start_idx['tempo'] + min(m.tempo, cc.config.discretization.tempo - 1)
 
         token_seq.extend([pitch,
                           dynamic, 
