@@ -55,16 +55,14 @@ class ModelArgs:
 
 
 class Mamba(nn.Module):
-    def __init__(self, args: ModelArgs):
+    def __init__(self, dict):
         """Full Mamba model."""
         super().__init__()
-        self.args = args
-        
-        self.embedding = nn.Embedding(args.vocab_size, args.d_model)
-        self.layers = nn.ModuleList([ResidualBlock(args) for _ in range(args.n_layer)])
-        self.norm_f = RMSNorm(args.d_model)
+        self.embedding = nn.Embedding(dict['vocab_size'], dict['d_model'])
+        self.layers = nn.ModuleList([ResidualBlock(dict) for _ in range(dict['n_layer'])])
+        self.norm_f = RMSNorm(dict['d_model'])
 
-        self.lm_head = nn.Linear(args.d_model, args.vocab_size, bias=False)
+        self.lm_head = nn.Linear(dict['d_model'], dict['vocab_size'], bias=False)
         self.lm_head.weight = self.embedding.weight  # Tie output projection to embedding weights.
                                                      # See "Weight Tying" paper
 
@@ -142,12 +140,11 @@ class Mamba(nn.Module):
 
 
 class ResidualBlock(nn.Module):
-    def __init__(self, args: ModelArgs):
+    def __init__(self, dict):
         """Simple block wrapping Mamba block with normalization and residual connection."""
         super().__init__()
-        self.args = args
-        self.mixer = MambaBlock(args)
-        self.norm = RMSNorm(args.d_model)
+        self.mixer = MambaBlock(dict)
+        self.norm = RMSNorm(dict['d_model'])
         
 
     def forward(self, x):
@@ -176,32 +173,31 @@ class ResidualBlock(nn.Module):
             
 
 class MambaBlock(nn.Module):
-    def __init__(self, args: ModelArgs):
+    def __init__(self, dict):
         """A single Mamba block, as described in Figure 3 in Section 3.4 in the Mamba paper [1]."""
         super().__init__()
-        self.args = args
 
-        self.in_proj = nn.Linear(args.d_model, args.d_inner * 2, bias=args.bias)
+        self.in_proj = nn.Linear(dict['d_model'], dict['d_inner'] * 2, bias=dict['bias'])
 
         self.conv1d = nn.Conv1d(
-            in_channels=args.d_inner,
-            out_channels=args.d_inner,
-            bias=args.conv_bias,
-            kernel_size=args.d_conv,
-            groups=args.d_inner,
-            padding=args.d_conv - 1,
+            in_channels=dict['d_inner'],
+            out_channels=dict['d_inner'],
+            bias=dict['conv_bias'],
+            kernel_size=dict['d_conv'],
+            groups=dict['d_inner'],
+            padding=dict['d_conv'] - 1,
         )
 
         # x_proj takes in `x` and outputs the input-specific Δ, B, C
-        self.x_proj = nn.Linear(args.d_inner, args.dt_rank + args.d_state * 2, bias=False)
+        self.x_proj = nn.Linear(dict['d_inner'], dict['dt_rank'] + dict['d_state'] * 2, bias=False)
         
         # dt_proj projects Δ from dt_rank to d_in
-        self.dt_proj = nn.Linear(args.dt_rank, args.d_inner, bias=True)
+        self.dt_proj = nn.Linear(dict['dt_rank'], dict['d_inner'], bias=True)
 
-        A = repeat(torch.arange(1, args.d_state + 1), 'n -> d n', d=args.d_inner)
+        A = repeat(torch.arange(1, dict['d_state'] + 1), 'n -> d n', d=dict['d_inner'])
         self.A_log = nn.Parameter(torch.log(A))
-        self.D = nn.Parameter(torch.ones(args.d_inner))
-        self.out_proj = nn.Linear(args.d_inner, args.d_model, bias=args.bias)
+        self.D = nn.Parameter(torch.ones(dict['d_inner']))
+        self.out_proj = nn.Linear(dict['d_inner'], dict['d_model'], bias=dict['bias'])
         
 
     def forward(self, x):
@@ -221,7 +217,7 @@ class MambaBlock(nn.Module):
         (b, l, d) = x.shape
         
         x_and_res = self.in_proj(x)  # shape (b, l, 2 * d_in)
-        (x, res) = x_and_res.split(split_size=[self.args.d_inner, self.args.d_inner], dim=-1)
+        (x, res) = x_and_res.split(split_size=[self.dict['d_inner'], self.dict['d_inner']], dim=-1)
 
         x = rearrange(x, 'b l d_in -> b d_in l')
         x = self.conv1d(x)[:, :, :l]
@@ -265,7 +261,7 @@ class MambaBlock(nn.Module):
 
         x_dbl = self.x_proj(x)  # (b, l, dt_rank + 2*n)
         
-        (delta, B, C) = x_dbl.split(split_size=[self.args.dt_rank, n, n], dim=-1)  # delta: (b, l, dt_rank). B, C: (b, l, n)
+        (delta, B, C) = x_dbl.split(split_size=[self.dict['dt_rank'], n, n], dim=-1)  # delta: (b, l, dt_rank). B, C: (b, l, n)
         delta = F.softplus(self.dt_proj(delta))  # (b, l, d_in)
         
         y = self.selective_scan(x, delta, A, B, C, D)  # This is similar to run_SSM(A, B, C, u) in The Annotated S4 [2]

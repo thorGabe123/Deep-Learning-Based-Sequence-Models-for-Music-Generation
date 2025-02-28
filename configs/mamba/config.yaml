@@ -1,10 +1,10 @@
 model_values:
-  d_model: 12
-  n_layer: 4
-  d_state: 8
-  expand: 4
-  dt_rank: 64
-  d_conv: 6
-  pad_vocab_size_multiple: 1
+  d_model: 2
+  n_layer: 2
+  vocab_size: 2
+  d_state: 2
+  expand: 2
+  d_conv: 4 
+  pad_vocab_size_multiple: 8
   conv_bias: True
   bias: False
