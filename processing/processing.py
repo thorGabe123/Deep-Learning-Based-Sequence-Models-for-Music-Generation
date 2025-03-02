@@ -20,7 +20,6 @@ def find_files_by_extensions(root, exts=[]):
         for name in files:
             if _has_ext(name):
                 yield os.path.join(path, name)
-    return files
 
 def preprocess_midi_files(midi_folder, preprocess_folder):
     midi_paths = list(find_files_by_extensions(midi_folder, ['.mid', '.midi']))
