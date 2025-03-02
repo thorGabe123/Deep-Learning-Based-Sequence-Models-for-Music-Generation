@@ -55,14 +55,14 @@ class ModelArgs:
 
 
 class Mamba(nn.Module):
-    def __init__(self, dict):
+    def __init__(self, params):
         """Full Mamba model."""
         super().__init__()
-        self.embedding = nn.Embedding(dict['vocab_size'], dict['d_model'])
-        self.layers = nn.ModuleList([ResidualBlock(dict) for _ in range(dict['n_layer'])])
-        self.norm_f = RMSNorm(dict['d_model'])
+        self.embedding = nn.Embedding(params.vocab_size, params.d_model)
+        self.layers = nn.ModuleList([ResidualBlock(params) for _ in range(params.n_layer)])
+        self.norm_f = RMSNorm(params.d_model)
 
-        self.lm_head = nn.Linear(dict['d_model'], dict['vocab_size'], bias=False)
+        self.lm_head = nn.Linear(params.d_model, params.vocab_size, bias=False)
         self.lm_head.weight = self.embedding.weight  # Tie output projection to embedding weights.
                                                      # See "Weight Tying" paper
 
@@ -116,35 +116,35 @@ class Mamba(nn.Module):
             return json.load(open(resolved_archive_file))
         
         
-        def load_state_dict_hf(model_name, device=None, dtype=None):
+        def load_state_params_hf(model_name, device=None, dtype=None):
             resolved_archive_file = cached_file(model_name, WEIGHTS_NAME,
                                                 _raise_exceptions_for_missing_entries=False)
             return torch.load(resolved_archive_file, weights_only=True, map_location='cpu', mmap=True)
         
         config_data = load_config_hf(pretrained_model_name)
         args = ModelArgs(
-            d_model=config_data['d_model'],
-            n_layer=config_data['n_layer'],
-            vocab_size=config_data['vocab_size']
+            d_model=config_data.d_model,
+            n_layer=config_data.n_layer,
+            vocab_size=config_data.vocab_size
         )
         model = Mamba(args)
         
-        state_dict = load_state_dict_hf(pretrained_model_name)
-        new_state_dict = {}
-        for key in state_dict:
+        state_params = load_state_params_hf(pretrained_model_name)
+        new_state_params = {}
+        for key in state_params:
             new_key = key.replace('backbone.', '')
-            new_state_dict[new_key] = state_dict[key]
-        model.load_state_dict(new_state_dict)
+            new_state_params[new_key] = state_params[key]
+        model.load_state_params(new_state_params)
         
         return model
 
 
 class ResidualBlock(nn.Module):
-    def __init__(self, dict):
+    def __init__(self, params):
         """Simple block wrapping Mamba block with normalization and residual connection."""
         super().__init__()
-        self.mixer = MambaBlock(dict)
-        self.norm = RMSNorm(dict['d_model'])
+        self.mixer = MambaBlock(params)
+        self.norm = RMSNorm(params.d_model)
         
 
     def forward(self, x):
@@ -173,31 +173,31 @@ class ResidualBlock(nn.Module):
             
 
 class MambaBlock(nn.Module):
-    def __init__(self, dict):
+    def __init__(self, params):
         """A single Mamba block, as described in Figure 3 in Section 3.4 in the Mamba paper [1]."""
         super().__init__()
 
-        self.in_proj = nn.Linear(dict['d_model'], dict['d_inner'] * 2, bias=dict['bias'])
+        self.in_proj = nn.Linear(params.d_model, params.d_inner * 2, bias=params.bias)
 
         self.conv1d = nn.Conv1d(
-            in_channels=dict['d_inner'],
-            out_channels=dict['d_inner'],
-            bias=dict['conv_bias'],
-            kernel_size=dict['d_conv'],
-            groups=dict['d_inner'],
-            padding=dict['d_conv'] - 1,
+            in_channels=params.d_inner,
+            out_channels=params.d_inner,
+            bias=params.conv_bias,
+            kernel_size=params.d_conv,
+            groups=params.d_inner,
+            padding=params.d_conv - 1,
         )
 
         # x_proj takes in `x` and outputs the input-specific Δ, B, C
-        self.x_proj = nn.Linear(dict['d_inner'], dict['dt_rank'] + dict['d_state'] * 2, bias=False)
+        self.x_proj = nn.Linear(params.d_inner, params.dt_rank + params.d_state * 2, bias=False)
         
         # dt_proj projects Δ from dt_rank to d_in
-        self.dt_proj = nn.Linear(dict['dt_rank'], dict['d_inner'], bias=True)
+        self.dt_proj = nn.Linear(params.dt_rank, params.d_inner, bias=True)
 
-        A = repeat(torch.arange(1, dict['d_state'] + 1), 'n -> d n', d=dict['d_inner'])
+        A = repeat(torch.arange(1, params.d_state + 1), 'n -> d n', d=params.d_inner)
         self.A_log = nn.Parameter(torch.log(A))
-        self.D = nn.Parameter(torch.ones(dict['d_inner']))
-        self.out_proj = nn.Linear(dict['d_inner'], dict['d_model'], bias=dict['bias'])
+        self.D = nn.Parameter(torch.ones(params.d_inner))
+        self.out_proj = nn.Linear(params.d_inner, params.d_model, bias=params.bias)
         
 
     def forward(self, x):
@@ -217,7 +217,7 @@ class MambaBlock(nn.Module):
         (b, l, d) = x.shape
         
         x_and_res = self.in_proj(x)  # shape (b, l, 2 * d_in)
-        (x, res) = x_and_res.split(split_size=[self.dict['d_inner'], self.dict['d_inner']], dim=-1)
+        (x, res) = x_and_res.split(split_size=[self.params.d_inner, self.params.d_inner], dim=-1)
 
         x = rearrange(x, 'b l d_in -> b d_in l')
         x = self.conv1d(x)[:, :, :l]
@@ -261,7 +261,7 @@ class MambaBlock(nn.Module):
 
         x_dbl = self.x_proj(x)  # (b, l, dt_rank + 2*n)
         
-        (delta, B, C) = x_dbl.split(split_size=[self.dict['dt_rank'], n, n], dim=-1)  # delta: (b, l, dt_rank). B, C: (b, l, n)
+        (delta, B, C) = x_dbl.split(split_size=[self.params.dt_rank, n, n], dim=-1)  # delta: (b, l, dt_rank). B, C: (b, l, n)
         delta = F.softplus(self.dt_proj(delta))  # (b, l, d_in)
         
         y = self.selective_scan(x, delta, A, B, C, D)  # This is similar to run_SSM(A, B, C, u) in The Annotated S4 [2]

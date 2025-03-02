@@ -15,8 +15,7 @@ def dict_to_namespace(d):
     return d
 
 # Load config
-config_dict = load_config()
-config = dict_to_namespace(config_dict)
+config = dict_to_namespace(load_config())
 
 # Compute VOCAB_SIZE dynamically
 vocab_size = sum(vars(config.discretization).values()) + 1

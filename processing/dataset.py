@@ -22,14 +22,14 @@ def multiply_sequence(sequence, rand_ints, lower_bound, upper_bound):
     return multiplied_sequence
 
 def get_metadata_json():
-    with open('F:\\GitHub\\dataset\\midi_dataset\\metadata.json', 'r') as f:
+    with open('..\\dataset\\midi_dataset\\metadata.json', 'r') as f:
         metadata = json.load(f)
     return metadata
 
 def save_metadata_tokenizations(tokenizations):
     meta_vocab_size = sum([len(x) for x in tokenizations.values()])
     tokenizations['VOCAB_SIZE'] = meta_vocab_size
-    with open('F:\\GitHub\\dataset\\midi_dataset\\tokenizations.json', 'w') as f:
+    with open('..\\dataset\\midi_dataset\\tokenizations.json', 'w') as f:
             json.dump(tokenizations, f, indent=4)
 
 def floor_to_nearest_10(number):
