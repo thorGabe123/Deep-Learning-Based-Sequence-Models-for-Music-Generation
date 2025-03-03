@@ -7,45 +7,46 @@ class sLSTMblock(nn.Module):
     def __init__(self, params):
         super().__init__()
         
-        self.ln = nn.LayerNorm(params.n_embd)
+        self.n_embd = params.n_embd
+        self.ln = nn.LayerNorm(self.n_embd)
         
-        self.conv = CausalConv1D(params.n_embd, params.n_embd, int(params.n_embd/8))
+        self.conv = CausalConv1D(self.n_embd, self.n_embd, int(self.n_embd/8))
         self.drop = nn.Dropout(params.dropout)
         
-        self.i_gate = BlockDiagonal(params.n_embd, params.n_embd, params.depth)
-        self.f_gate = BlockDiagonal(params.n_embd, params.n_embd, params.depth)
-        self.o_gate = BlockDiagonal(params.n_embd, params.n_embd, params.depth)
-        self.z_gate = BlockDiagonal(params.n_embd, params.n_embd, params.depth)
+        self.i_gate = BlockDiagonal(self.n_embd, self.n_embd, params.depth)
+        self.f_gate = BlockDiagonal(self.n_embd, self.n_embd, params.depth)
+        self.o_gate = BlockDiagonal(self.n_embd, self.n_embd, params.depth)
+        self.z_gate = BlockDiagonal(self.n_embd, self.n_embd, params.depth)
         
-        self.ri_gate = BlockDiagonal(params.n_embd, params.n_embd, params.depth, bias=False)
-        self.rf_gate = BlockDiagonal(params.n_embd, params.n_embd, params.depth, bias=False)
-        self.ro_gate = BlockDiagonal(params.n_embd, params.n_embd, params.depth, bias=False)
-        self.rz_gate = BlockDiagonal(params.n_embd, params.n_embd, params.depth, bias=False)
+        self.ri_gate = BlockDiagonal(self.n_embd, self.n_embd, params.depth, bias=False)
+        self.rf_gate = BlockDiagonal(self.n_embd, self.n_embd, params.depth, bias=False)
+        self.ro_gate = BlockDiagonal(self.n_embd, self.n_embd, params.depth, bias=False)
+        self.rz_gate = BlockDiagonal(self.n_embd, self.n_embd, params.depth, bias=False)
 
-        self.ln_i = nn.LayerNorm(params.n_embd)
-        self.ln_f = nn.LayerNorm(params.n_embd)
-        self.ln_o = nn.LayerNorm(params.n_embd)
-        self.ln_z = nn.LayerNorm(params.n_embd)
+        self.ln_i = nn.LayerNorm(self.n_embd)
+        self.ln_f = nn.LayerNorm(self.n_embd)
+        self.ln_o = nn.LayerNorm(self.n_embd)
+        self.ln_z = nn.LayerNorm(self.n_embd)
         
-        self.GN = nn.LayerNorm(params.n_embd)
-        self.ln_c = nn.LayerNorm(params.n_embd)
-        self.ln_n = nn.LayerNorm(params.n_embd)
-        self.ln_h = nn.LayerNorm(params.n_embd)
+        self.GN = nn.LayerNorm(self.n_embd)
+        self.ln_c = nn.LayerNorm(self.n_embd)
+        self.ln_n = nn.LayerNorm(self.n_embd)
+        self.ln_h = nn.LayerNorm(self.n_embd)
         
-        self.left_linear = nn.Linear(params.n_embd, int(params.n_embd*(4/3)))
-        self.right_linear = nn.Linear(params.n_embd, int(params.n_embd*(4/3)))
+        self.left_linear = nn.Linear(self.n_embd, int(self.n_embd*(4/3)))
+        self.right_linear = nn.Linear(self.n_embd, int(self.n_embd*(4/3)))
 
-        self.ln_out = nn.LayerNorm(int(params.n_embd*(4/3)))
+        self.ln_out = nn.LayerNorm(int(self.n_embd*(4/3)))
         
-        self.proj = nn.Linear(int(params.n_embd*(4/3)), params.n_embd)
+        self.proj = nn.Linear(int(self.n_embd*(4/3)), self.n_embd)
         
         self.init_states(params)
         
     def init_states(self, params):
-        self.nt_1 = torch.zeros(1, 1, params.n_embd, device=params.device)
-        self.ct_1 = torch.zeros(1, 1, params.n_embd, device=params.device)
-        self.ht_1 = torch.zeros(1, 1, params.n_embd, device=params.device)
-        self.mt_1 = torch.zeros(1, 1, params.n_embd, device=params.device)
+        self.nt_1 = torch.zeros(1, 1, self.n_embd, device=params.device)
+        self.ct_1 = torch.zeros(1, 1, self.n_embd, device=params.device)
+        self.ht_1 = torch.zeros(1, 1, self.n_embd, device=params.device)
+        self.mt_1 = torch.zeros(1, 1, self.n_embd, device=params.device)
         
     def forward(self, x):
         x = self.ln(x)
