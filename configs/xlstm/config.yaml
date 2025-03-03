@@ -1,6 +1,5 @@
 model_values:
-  block_size: 252
-  n_embd: 128
-  n_head: 8
-  n_layer: 8
-  feedforward_dim: 2048
+  layers: ['s', 'm', 's', 'm']
+  n_embd: 4
+  depth: 4
+  factor: 2

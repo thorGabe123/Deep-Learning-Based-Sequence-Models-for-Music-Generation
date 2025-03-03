@@ -57,7 +57,6 @@ def load_model(type, name):
 def train(model, type):
     train_dataloader, test_dataloader = processing.get_train_test_dataloaders('..\\dataset\\np_dataset')
     metadata_vocab_size = processing.get_metadata_vocab_size()
-    actual_vocab_size = get_actual_vocab_size(type)
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=cc.config.values.learning_rate)
 
@@ -90,7 +89,6 @@ def train(model, type):
         val_loss = 0
         with torch.no_grad():
             for src, trg, metadata in test_dataloader:
-                src, trg = src.to(cc.config.values.device), trg.to(cc.config.values.device)
                 output = model(src)
                 output = output.reshape(-1, model.vocab_size)
                 trg = trg.view(-1)
@@ -120,6 +118,6 @@ if __name__ == "__main__":
     else:
         model = load_model(args.model, args.name)
 
-    train(model, args.model)
+    train(model)
 
     torch.save(model.state_dict(), f'models/{args.model}/{args.name}')
