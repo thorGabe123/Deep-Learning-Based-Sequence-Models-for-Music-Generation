@@ -58,6 +58,8 @@ class Mamba(nn.Module):
     def __init__(self, params):
         """Full Mamba model."""
         super().__init__()
+        self.vocab_size = params.vocab_size
+        
         self.embedding = nn.Embedding(params.vocab_size, params.d_model)
         self.layers = nn.ModuleList([ResidualBlock(params) for _ in range(params.n_layer)])
         self.norm_f = RMSNorm(params.d_model)

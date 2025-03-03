@@ -7,6 +7,7 @@ import configs.common as cc
 import models
 import math
 import processing
+from types import SimpleNamespace
 
 def get_actual_vocab_size(type):
     config = cm.config.model_values
@@ -22,16 +23,19 @@ def get_mamba_dict():
     config.d_inner = int(config.expand * config.d_model)
     config.dt_rank = math.ceil(config.d_model / 16)
     config.vocab_size = get_actual_vocab_size('mamba')
+    config = SimpleNamespace(**vars(config), **vars(cc.config.values))
     return config
 
 def get_xlstm_dict():
     config = cx.config.model_values
     config.vocab_size = cc.vocab_size
+    config = SimpleNamespace(**vars(config), **vars(cc.config.values))
     return config
 
 def get_transformer_dict():
     config = ct.config.model_values
     config.vocab_size = cc.vocab_size
+    config = SimpleNamespace(**vars(config), **vars(cc.config.values))
     return config
 
 def new_model(type):
@@ -65,7 +69,7 @@ def train(model, type):
 
         for batch_idx, (src, trg, metadata) in enumerate(train_dataloader):
             output = model(src)
-            output = output.reshape(-1, actual_vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
+            output = output.reshape(-1, model.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
             trg = trg.view(-1)  # Flatten the target to [batch_size * seq_len]
 
             loss = criterion(output, trg)
@@ -88,7 +92,7 @@ def train(model, type):
             for src, trg, metadata in test_dataloader:
                 src, trg = src.to(cc.config.values.device), trg.to(cc.config.values.device)
                 output = model(src)
-                output = output.reshape(-1, actual_vocab_size)
+                output = output.reshape(-1, model.vocab_size)
                 trg = trg.view(-1)
                 val_loss += criterion(output, trg).item()
         

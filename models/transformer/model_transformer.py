@@ -97,16 +97,18 @@ class PositionalEncoding(nn.Module):
         return x + self.encoding[:, :x.size(1)].detach()
 
 class Transformer(nn.Module):
-    def __init__(self, vocab_size, n_embd, n_layer, n_heads, block_size, dropout, device):
+    def __init__(self, params):
         super().__init__()
+        self.vocab_size = params.vocab_size
+
         # Embedding layers for tokens and positions
-        self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
-        self.positional_encoding = PositionalEncoding(n_embd, block_size, device)
+        self.token_embedding_table = nn.Embedding(params.vocab_size, params.n_embd)
+        self.positional_encoding = PositionalEncoding(params.n_embd, params.block_size, params.device)
 
         # Transformer blocks
-        self.blocks = nn.Sequential(*[Block(n_embd, n_heads, block_size, dropout) for _ in range(n_layer)])
-        self.ln_f = nn.LayerNorm(n_embd)  # final layer norm
-        self.lm_head = nn.Linear(n_embd, vocab_size)
+        self.blocks = nn.Sequential(*[Block(params.n_embd, params.n_heads, params.block_size, params.dropout) for _ in range(params.n_layer)])
+        self.ln_f = nn.LayerNorm(params.n_embd)  # final layer norm
+        self.lm_head = nn.Linear(params.n_embd, params.vocab_size)
 
     def forward(self, idx, targets=None):
         B, T = idx.shape
