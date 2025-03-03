@@ -177,6 +177,8 @@ class MambaBlock(nn.Module):
         """A single Mamba block, as described in Figure 3 in Section 3.4 in the Mamba paper [1]."""
         super().__init__()
 
+        self.params = params
+
         self.in_proj = nn.Linear(params.d_model, params.d_inner * 2, bias=params.bias)
 
         self.conv1d = nn.Conv1d(

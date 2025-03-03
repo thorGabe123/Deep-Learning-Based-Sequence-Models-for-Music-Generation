@@ -8,6 +8,7 @@ import json
 from processing import *
 import configs.common as cc
 
+current_dir = Path(__file__).parent
 
 def shift_sequence(sequence, rand_int, lower_bound, upper_bound):
     shifted_sequence = sequence.clone()
@@ -22,14 +23,16 @@ def multiply_sequence(sequence, rand_ints, lower_bound, upper_bound):
     return multiplied_sequence
 
 def get_metadata_json():
-    with open('..\\dataset\\midi_dataset\\metadata.json', 'r') as f:
+    metadata_path = current_dir / '../../dataset/midi_dataset/metadata.json'
+    with open(metadata_path, 'r') as f:
         metadata = json.load(f)
     return metadata
 
 def save_metadata_tokenizations(tokenizations):
     meta_vocab_size = sum([len(x) for x in tokenizations.values()])
     tokenizations['VOCAB_SIZE'] = meta_vocab_size
-    with open('..\\dataset\\midi_dataset\\tokenizations.json', 'w') as f:
+    tokenizations_path = current_dir / '../../dataset/midi_dataset/tokenizations.json'
+    with open(tokenizations_path, 'w') as f:
             json.dump(tokenizations, f, indent=4)
 
 def floor_to_nearest_10(number):
@@ -161,7 +164,7 @@ class SequenceDataset(Dataset):
                 ix = random.randint(0, (len(sequence) - seq_len_extra - 1) // 6)
                 sequence = sequence[ix * 6: ix * 6 + seq_len_extra]
 
-        sequence = torch.tensor(sequence, device=cc.config.values.device)
+        sequence = torch.tensor(sequence, device=cc.config.values.device, dtype=torch.long)
         sequence = self.data_augementation(sequence)
 
         # Fetch metadata for the band
@@ -230,6 +233,7 @@ def get_train_test_dataloaders(directory, batch_size=cc.config.values.batch_size
     return train_dataloader, test_dataloader
 
 def get_metadata_vocab_size():
-    with open('F:\\GitHub\\dataset\\midi_dataset\\tokenizations.json', 'r') as f:
+    tokenizations_path = current_dir / '../../dataset/midi_dataset/tokenizations.json'
+    with open(tokenizations_path, 'r') as f:
         tokenizations = json.load(f)
     return tokenizations['VOCAB_SIZE']

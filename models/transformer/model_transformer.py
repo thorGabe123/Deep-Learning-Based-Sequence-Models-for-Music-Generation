@@ -4,7 +4,7 @@ import configs.common as cc
 import torch.nn.functional as F
 
 def generate_matrix(n: int, x: int) -> torch.Tensor:
-    matrix = torch.zeros((n, n), dtype=torch.float32, device=DEVICE)
+    matrix = torch.zeros((n, n), dtype=torch.float32, device=cc.config.values.device)
     
     for i in range(n):
         matrix[i, : ((i // x) + 1) * x] = 1.0
@@ -21,7 +21,7 @@ class Head(nn.Module):
         self.value = nn.Linear(n_embd, head_size, bias=False)
         self.register_buffer('tril', generate_matrix(block_size, 6))
 
-        self.dropout = nn.Dropout(DROPOUT)
+        self.dropout = nn.Dropout(cc.config.values.dropout)
 
     def forward(self, x):
         B,T,C = x.shape

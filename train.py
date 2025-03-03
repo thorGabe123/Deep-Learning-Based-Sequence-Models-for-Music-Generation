@@ -8,23 +8,29 @@ import models
 import math
 import processing
 
+def get_actual_vocab_size(type):
+    config = cm.config.model_values
+    new_vocab_size = config.vocab_size
+    if type == 'mamba':
+        if config.vocab_size % config.pad_vocab_size_multiple != 0:
+            new_vocab_size += (config.pad_vocab_size_multiple - config.vocab_size % config.pad_vocab_size_multiple)
+    return new_vocab_size
+
 def get_mamba_dict():
     config = cm.config.model_values
     config.vocab_size = cc.vocab_size
     config.d_inner = int(config.expand * config.d_model)
     config.dt_rank = math.ceil(config.d_model / 16)
-        
-    if config.vocab_size % config.pad_vocab_size_multiple != 0:
-        config.vocab_size += (config.pad_vocab_size_multiple - config.vocab_size % config.pad_vocab_size_multiple)
+    config.vocab_size = get_actual_vocab_size('mamba')
     return config
 
 def get_xlstm_dict():
-    config = cx.config_dict.model_values
+    config = cx.config.model_values
     config.vocab_size = cc.vocab_size
     return config
 
 def get_transformer_dict():
-    config = ct.config_dict.model_values
+    config = ct.config.model_values
     config.vocab_size = cc.vocab_size
     return config
 
@@ -33,20 +39,21 @@ def new_model(type):
         mamba_dict = get_mamba_dict()
         model = models.mamba.Mamba(mamba_dict)
     elif type == "xlstm":
-        mamba_dict = get_xlstm_dict()
-        model = models.xlstm.xLSTM()
+        xlstm_dict = get_xlstm_dict()
+        model = models.xlstm.xLSTM(xlstm_dict)
     elif type == "transformer":
-        mamba_dict = get_transformer_dict()
-        model = models.transformer.Transformer()
+        transformer_dict = get_transformer_dict()
+        model = models.transformer.Transformer(transformer_dict)
     return model
 
 def load_model(type, name):
     model = new_model(type)
     return model.load_state_dict(f'models/{type}/{name}')
 
-def train(model):
+def train(model, type):
     train_dataloader, test_dataloader = processing.get_train_test_dataloaders('..\\dataset\\np_dataset')
-    METADATA_VOCAB_SIZE = processing.get_metadata_vocab_size()
+    metadata_vocab_size = processing.get_metadata_vocab_size()
+    actual_vocab_size = get_actual_vocab_size(type)
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=cc.config.values.learning_rate)
 
@@ -58,7 +65,7 @@ def train(model):
 
         for batch_idx, (src, trg, metadata) in enumerate(train_dataloader):
             output = model(src)
-            output = output.reshape(-1, cc.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
+            output = output.reshape(-1, actual_vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
             trg = trg.view(-1)  # Flatten the target to [batch_size * seq_len]
 
             loss = criterion(output, trg)
@@ -69,7 +76,7 @@ def train(model):
             
             total_loss += loss.item()
 
-            if (batch_idx + 1) % 10 == 0:
+            if (batch_idx + 1) % 100 == 0:
                 print(f'Epoch [{epoch+1}/{num_epochs}], Step [{batch_idx+1}/{len(train_dataloader)}], Loss: {loss.item():.4f}')
 
         avg_loss = total_loss / len(train_dataloader)
@@ -81,7 +88,7 @@ def train(model):
             for src, trg, metadata in test_dataloader:
                 src, trg = src.to(cc.config.values.device), trg.to(cc.config.values.device)
                 output = model(src)
-                output = output.reshape(-1, cc.vocab_size)
+                output = output.reshape(-1, actual_vocab_size)
                 trg = trg.view(-1)
                 val_loss += criterion(output, trg).item()
         
@@ -109,6 +116,6 @@ if __name__ == "__main__":
     else:
         model = load_model(args.model, args.name)
 
-    train(model)
+    train(model, args.model)
 
     torch.save(model.state_dict(), f'models/{args.model}/{args.name}')
