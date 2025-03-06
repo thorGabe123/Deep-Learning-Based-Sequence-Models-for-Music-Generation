@@ -56,10 +56,14 @@ def load_model(type, name):
     model = new_model(type)
     return model.load_state_dict(f'models/{type}/{name}')
 
-def save_model(model, path):
+def save_model(model, loss):
+    now = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
+    save_path = f'pretrained/{args.model}/{loss:.2f}_{now}.pth'
+
     if not os.path.exists(path):
-        os.makedirs(os.path.dirname(path))
-    torch.save(model.state_dict(), path)
+        os.makedirs(os.path.dirname(save_path))
+    torch.save(model.state_dict(), save_path)
 
 def train(model):
     train_dataloader, test_dataloader = processing.get_train_test_dataloaders('..\\dataset\\np_dataset')
@@ -104,13 +108,11 @@ def train(model):
         
         avg_val_loss = val_loss / len(test_dataloader)
         print(f'Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}')
+        if epoch % cc.config.values.save_interval == cc.config.values.save_interval - 1:
+            save_model(model)
 
     print("Training complete!")
-    now = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-
-    save_path = f'pretrained/{args.model}/{avg_val_loss:.2f}_{now}.pth'
-
-    save_model(model, save_path)
+    save_model(model)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Training Script")
