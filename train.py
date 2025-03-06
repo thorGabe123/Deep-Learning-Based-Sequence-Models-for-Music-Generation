@@ -8,6 +8,8 @@ import models
 import math
 import processing
 from types import SimpleNamespace
+import os
+from datetime import datetime
 
 def get_actual_vocab_size(type):
     config = cm.config.model_values
@@ -54,7 +56,12 @@ def load_model(type, name):
     model = new_model(type)
     return model.load_state_dict(f'models/{type}/{name}')
 
-def train(model, type):
+def save_model(model, path):
+    if not os.path.exists(path):
+        os.makedirs(os.path.dirname(path))
+    torch.save(model.state_dict(), path)
+
+def train(model):
     train_dataloader, test_dataloader = processing.get_train_test_dataloaders('..\\dataset\\np_dataset')
     metadata_vocab_size = processing.get_metadata_vocab_size()
     criterion = torch.nn.CrossEntropyLoss()
@@ -62,6 +69,7 @@ def train(model, type):
 
     # Training loop
     num_epochs = cc.config.values.epochs
+    print('Training started!')
     for epoch in range(num_epochs):
         model.train()  # Set the model to training mode
         total_loss = 0
@@ -98,6 +106,11 @@ def train(model, type):
         print(f'Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}')
 
     print("Training complete!")
+    now = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
+    save_path = f'pretrained/{args.model}/{avg_val_loss:.2f}_{now}.pth'
+
+    save_model(model, save_path)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Training Script")
@@ -119,5 +132,3 @@ if __name__ == "__main__":
         model = load_model(args.model, args.name)
 
     train(model)
-
-    torch.save(model.state_dict(), f'models/{args.model}/{args.name}')

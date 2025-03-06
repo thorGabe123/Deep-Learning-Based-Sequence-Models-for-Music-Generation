@@ -14,7 +14,7 @@ values:
   device: 'cpu'
   metadata_dims: {"composer": 8}
   dropout: 0.01
-  epochs: 200
+  epochs: 1
   eval_interval: 100
   save_interval: 500
   learning_rate: 0.1
