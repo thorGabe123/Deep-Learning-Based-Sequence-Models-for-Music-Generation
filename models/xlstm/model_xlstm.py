@@ -24,6 +24,7 @@ class xLSTM(nn.Module):
         [l.init_states(x) for l in self.layers]
     
     def forward(self, x):
+        x = x.unsqueeze(1)
         x_original = x.clone()
         for l in self.layers:
              x = l(x) + x_original

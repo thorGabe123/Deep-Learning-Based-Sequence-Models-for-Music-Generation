@@ -53,6 +53,12 @@ class sLSTMblock(nn.Module):
         
         x_conv = F.silu( self.drop(self.conv( x.transpose(1, 2) ).transpose(1, 2) ) )
         
+        batch_size = x.size(0)  # Get dynamic batch size from input
+        
+        if self.mt_1.size(0) != batch_size:
+            # Adjust self.mt_1 to match current batch size.
+            self.mt_1 = self.mt_1[:batch_size]
+
         # start sLSTM
         ht_1 = self.ht_1
         
@@ -90,4 +96,3 @@ class sLSTMblock(nn.Module):
         out = self.ln_out(left*right)
         out = self.proj(out)
         return out
-  
