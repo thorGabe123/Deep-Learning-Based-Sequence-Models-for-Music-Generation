@@ -1,0 +1,23 @@
+discretization:
+  pitch: 128
+  dyn: 128
+  length: 100
+  time: 100
+  channel: 128
+  tempo: 250
+
+resolution:
+  bar_res: 24
+  
+values:
+  block_len: 128
+  device: 'cuda'
+  metadata_dims: {"composer": 8}
+  dropout: 0.01
+  epochs: 1
+  eval_interval: 100
+  save_interval: 500
+  learning_rate: 0.1
+  eval_iters: 200
+  test_ratio: 0.2
+  batch_size: 8

@@ -1,0 +1,5 @@
+model_values:
+  layers: ['s', 'm', 's', 'm']
+  n_embd: 128
+  depth: 4
+  factor: 2
