@@ -11,7 +11,7 @@ resolution:
   
 values:
   block_len: 128
-  device: 'cpu'
+  device: 'cuda'
   metadata_dims: {"composer": 8}
   dropout: 0.01
   epochs: 1

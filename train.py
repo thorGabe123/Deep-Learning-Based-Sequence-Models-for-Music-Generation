@@ -54,14 +54,15 @@ def new_model(type):
 
 def load_model(type, name):
     model = new_model(type)
-    return model.load_state_dict(f'models/{type}/{name}')
+    model.load_state_dict(torch.load(f'pretrained/{type}/{name}'))
+    return model
 
 def save_model(model, loss):
     now = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
-    save_path = f'pretrained/{args.model}/{loss:.2f}_{now}.pth'
+    save_path = f'pretrained/{args.model}/loss_{loss:.2f}_time_{now}.pth'
 
-    if not os.path.exists(path):
+    if not os.path.exists(os.path.dirname(save_path)):
         os.makedirs(os.path.dirname(save_path))
     torch.save(model.state_dict(), save_path)
 
@@ -79,6 +80,8 @@ def train(model):
         total_loss = 0
 
         for batch_idx, (src, trg, metadata) in enumerate(train_dataloader):
+            if model.get_name() == 'xLSTM':
+                src = src.float()
             output = model(src)
             output = output.reshape(-1, model.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
             trg = trg.view(-1)  # Flatten the target to [batch_size * seq_len]
@@ -101,6 +104,8 @@ def train(model):
         val_loss = 0
         with torch.no_grad():
             for src, trg, metadata in test_dataloader:
+                if model.get_name() == 'xLSTM':
+                    src = src.float()
                 output = model(src)
                 output = output.reshape(-1, model.vocab_size)
                 trg = trg.view(-1)
@@ -108,11 +113,11 @@ def train(model):
         
         avg_val_loss = val_loss / len(test_dataloader)
         print(f'Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}')
-        if epoch % cc.config.values.save_interval == cc.config.values.save_interval - 1:
-            save_model(model)
+        if (epoch + 1) % cc.config.values.save_interval == 0:
+            save_model(model, avg_val_loss)
 
     print("Training complete!")
-    save_model(model)
+    save_model(model, avg_val_loss)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Training Script")
@@ -132,5 +137,6 @@ if __name__ == "__main__":
         model = new_model(args.model)
     else:
         model = load_model(args.model, args.name)
+    model.to(cc.config.values.device)
 
     train(model)

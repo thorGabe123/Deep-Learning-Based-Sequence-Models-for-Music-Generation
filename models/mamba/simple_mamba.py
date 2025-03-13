@@ -140,6 +140,9 @@ class Mamba(nn.Module):
         
         return model
 
+    def get_name(self):
+        return 'Mamba'
+
 
 class ResidualBlock(nn.Module):
     def __init__(self, params):

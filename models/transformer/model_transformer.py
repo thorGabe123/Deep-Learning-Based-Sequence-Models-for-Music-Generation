@@ -124,3 +124,6 @@ class Transformer(nn.Module):
 
         logits = logits.view(B, T, -1)
         return logits
+    
+    def get_name(self):
+        return 'Transformer'
