@@ -67,6 +67,7 @@ def save_model(model, loss):
     torch.save(model.state_dict(), save_path)
 
 def train(model):
+    model.to(cc.config.values.device)
     train_dataloader, test_dataloader = processing.get_train_test_dataloaders('..\\dataset\\np_dataset')
     metadata_vocab_size = processing.get_metadata_vocab_size()
     criterion = torch.nn.CrossEntropyLoss()

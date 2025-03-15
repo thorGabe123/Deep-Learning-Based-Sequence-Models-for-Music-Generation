@@ -49,50 +49,53 @@ class sLSTMblock(nn.Module):
         self.mt_1 = torch.zeros(1, 1, self.n_embd, device=params.device)
         
     def forward(self, x):
+        batch_size = x.size(0)
+        
+        # Adjust the state tensors to the current batch size
+        if self.mt_1.size(0) != batch_size:
+            self.nt_1 = torch.zeros(batch_size, 1, self.n_embd, device=x.device)
+            self.ct_1 = torch.zeros(batch_size, 1, self.n_embd, device=x.device)
+            self.ht_1 = torch.zeros(batch_size, 1, self.n_embd, device=x.device)
+            self.mt_1 = torch.zeros(batch_size, 1, self.n_embd, device=x.device)
+
         x = self.ln(x)
         
-        x_conv = F.silu( self.drop(self.conv( x.transpose(1, 2) ).transpose(1, 2) ) )
+        x_conv = F.silu(self.drop(self.conv(x.transpose(1, 2)).transpose(1, 2)))
         
-        batch_size = x.size(0)  # Get dynamic batch size from input
-        
-        if self.mt_1.size(0) != batch_size:
-            # Adjust self.mt_1 to match current batch size.
-            self.mt_1 = self.mt_1[:batch_size]
-
-        # start sLSTM
         ht_1 = self.ht_1
         
-        i = torch.exp(self.ln_i( self.i_gate(x_conv) + self.ri_gate(ht_1) ) )
-        f = torch.exp( self.ln_f(self.f_gate(x_conv) + self.rf_gate(ht_1) ) )
+        # Compute gates
+        i = torch.exp(self.ln_i(self.i_gate(x_conv) + self.ri_gate(ht_1)))
+        f = torch.exp(self.ln_f(self.f_gate(x_conv) + self.rf_gate(ht_1)))
 
-        m = torch.max(torch.log(f)+self.mt_1[:, 0, :].unsqueeze(1), torch.log(i))
+        # Handle broadcasting and operations correctly
+        m = torch.max(torch.log(f) + self.mt_1[:, 0, :], torch.log(i))
         i = torch.exp(torch.log(i) - m)
-        f = torch.exp(torch.log(f) + self.mt_1[:, 0, :].unsqueeze(1)-m)
+        f = torch.exp(torch.log(f) + self.mt_1[:, 0, :] - m)
         self.mt_1 = m.detach()
         
-        o = torch.sigmoid( self.ln_o(self.o_gate(x) + self.ro_gate(ht_1) ) )
-        z = torch.tanh( self.ln_z(self.z_gate(x) + self.rz_gate(ht_1) ) )
+        o = torch.sigmoid(self.ln_o(self.o_gate(x) + self.ro_gate(ht_1)))
+        z = torch.tanh(self.ln_z(self.z_gate(x) + self.rz_gate(ht_1)))
         
         ct_1 = self.ct_1
-        ct = f*ct_1 + i*z
+        ct = f * ct_1 + i * z
         ct = torch.mean(self.ln_c(ct), [0, 1], keepdim=True)
         self.ct_1 = ct.detach()
         
         nt_1 = self.nt_1
-        nt = f*nt_1 + i
+        nt = f * nt_1 + i
         nt = torch.mean(self.ln_n(nt), [0, 1], keepdim=True)
         self.nt_1 = nt.detach()
         
-        ht = o*(ct/nt) # torch.Size([4, 8, 16])
+        ht = o * (ct / nt)
         ht = torch.mean(self.ln_h(ht), [0, 1], keepdim=True)
         self.ht_1 = ht.detach()
-        # end sLSTM
-        
+
         slstm_out = self.GN(ht)
         
         left = self.left_linear(slstm_out)
         right = F.gelu(self.right_linear(slstm_out))
         
-        out = self.ln_out(left*right)
+        out = self.ln_out(left * right)
         out = self.proj(out)
         return out
