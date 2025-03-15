@@ -36,9 +36,9 @@ class xLSTM(nn.Module):
         x = self.output_layer(x)
 
         # # Apply softmax to get probabilities
-        probabilities = F.log_softmax(x, dim=-1)
+        logits = F.softmax(x, dim=-1)
 
-        return probabilities
+        return logits
     
     def get_name(self):
         return 'xLSTM'

@@ -180,60 +180,71 @@ class SequenceDataset(Dataset):
         file_prob /= np.sum(file_prob)
         return file_prob
 
-def get_train_test_dataloaders(directory, batch_size=cc.config.values.batch_size, test_ratio=cc.config.values.test_ratio):
-    """
-    Create training and testing DataLoaders with WeightedRandomSampler.
+class DatasetLoader:
+    def __init__(self, directory, batch_size=cc.config.values.batch_size, test_ratio=cc.config.values.test_ratio):
+        """
+        Initialize the DatasetLoader with the dataset directory, batch size, and test ratio.
+        """
+        self.directory = directory
+        self.batch_size = batch_size
+        self.test_ratio = test_ratio
 
-    Args:
-        directory (str): Path to the dataset directory.
-        batch_size (int): Batch size for the DataLoader.
-        sequence_length (int or None): Sequence length for the dataset.
-        test_ratio (float): Ratio of the dataset to use for testing (default: 0.2).
+        # Load and split the dataset
+        self.dataset = SequenceDataset(directory)
+        self.file_prob = self.dataset.file_prob()
+        self.train_dataset, self.test_dataset = self._split_dataset()
 
-    Returns:
-        tuple: (train_dataloader, test_dataloader)
-    """
+        # Create samplers
+        self.train_sampler = self._create_sampler(self.train_dataset)
+        self.test_sampler = self._create_sampler(self.test_dataset)
 
-    # Load the dataset
-    dataset = SequenceDataset(directory)
+    def _split_dataset(self):
+        """
+        Split the dataset into training and testing subsets.
+        """
+        test_size = int(len(self.dataset) * self.test_ratio)
+        train_size = len(self.dataset) - test_size
+        return random_split(self.dataset, [train_size, test_size])
 
-    file_prob = dataset.file_prob()  # Get file probabilities
+    def _create_sampler(self, dataset):
+        """
+        Create a WeightedRandomSampler for a given dataset.
+        """
+        return WeightedRandomSampler(
+            weights=[self.file_prob[i] for i in dataset.indices],
+            num_samples=len(dataset),
+            replacement=True
+        )
 
-    # Split the dataset into training and testing subsets
-    test_size = int(len(dataset) * test_ratio)
-    train_size = len(dataset) - test_size
-    train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+    def get_dataloaders(self):
+        """
+        Get train and test DataLoaders.
+        """
+        train_dataloader = DataLoader(
+            self.train_dataset,
+            batch_size=self.batch_size,
+            sampler=self.train_sampler,
+            shuffle=False
+        )
+        test_dataloader = DataLoader(
+            self.test_dataset,
+            batch_size=self.batch_size,
+            sampler=self.test_sampler,
+            shuffle=False
+        )
+        return train_dataloader, test_dataloader
 
-    # Create WeightedRandomSamplers for train and test datasets
-    train_sampler = WeightedRandomSampler(
-        weights=[file_prob[i] for i in train_dataset.indices],  # Train subset probabilities
-        num_samples=len(train_dataset),  # Samples to draw per epoch
-        replacement=True
-    )
-    test_sampler = WeightedRandomSampler(
-        weights=[file_prob[i] for i in test_dataset.indices],  # Test subset probabilities
-        num_samples=len(test_dataset),  # Samples to draw per epoch
-        replacement=True
-    )
+    def get_random_sample(self, sampler_type='train'):
+        """
+        Get a random sample from chosen sampler: 'train' or 'test'.
+        """
+        sampler = self.train_sampler if sampler_type == 'train' else self.test_sampler
+        indices = list(sampler)
+        random_index = random.choice(indices)
+        return self.dataset[random_index]
 
-    # Create DataLoaders for train and test datasets
-    train_dataloader = DataLoader(
-        train_dataset,
-        batch_size=batch_size,
-        sampler=train_sampler,
-        shuffle=False
-    )
-    test_dataloader = DataLoader(
-        test_dataset,
-        batch_size=batch_size,
-        sampler=test_sampler,
-        shuffle=False
-    )
-
-    return train_dataloader, test_dataloader
-
-def get_metadata_vocab_size():
-    tokenizations_path = current_dir / '../../dataset/midi_dataset/tokenizations.json'
-    with open(tokenizations_path, 'r') as f:
-        tokenizations = json.load(f)
-    return tokenizations['VOCAB_SIZE']
+    def get_metadata_vocab_size():
+        tokenizations_path = current_dir / '../../dataset/midi_dataset/tokenizations.json'
+        with open(tokenizations_path, 'r') as f:
+            tokenizations = json.load(f)
+        return tokenizations['VOCAB_SIZE']

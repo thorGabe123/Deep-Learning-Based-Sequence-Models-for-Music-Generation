@@ -103,6 +103,7 @@ class Transformer(nn.Module):
 
         # Embedding layers for tokens and positions
         self.token_embedding_table = nn.Embedding(params.vocab_size, params.n_embd)
+        # self.token_embedding_table = nn.Embedding(params.metadata_vocab_size, params.n_embd)
         self.positional_encoding = PositionalEncoding(params.n_embd, params.block_size, params.device)
 
         # Transformer blocks

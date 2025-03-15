@@ -14,7 +14,7 @@ values:
   device: 'cuda'
   metadata_dims: {"composer": 8}
   dropout: 0.01
-  epochs: 1
+  epochs: 5
   eval_interval: 100
   save_interval: 500
   learning_rate: 0.1

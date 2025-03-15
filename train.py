@@ -68,8 +68,8 @@ def save_model(model, loss):
 
 def train(model):
     model.to(cc.config.values.device)
-    train_dataloader, test_dataloader = processing.get_train_test_dataloaders('..\\dataset\\np_dataset')
-    metadata_vocab_size = processing.get_metadata_vocab_size()
+    loader = processing.DatasetLoader('..\\dataset\\np_dataset')
+    train_dataloader, test_dataloader = loader.get_dataloaders()
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=cc.config.values.learning_rate)
 
