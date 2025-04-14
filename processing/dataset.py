@@ -170,7 +170,7 @@ class SequenceDataset(Dataset):
         # Fetch metadata for the band
         path_parts = Path(file_path).parts
         band_name = path_parts[-2]
-        band_metadata = self.metadata_dict[band_name]
+        band_metadata = self.metadata_dict[band_name].to(cc.config.values.device)
 
         # Return sequence and metadata
         return sequence[:-6], sequence[6:], band_metadata

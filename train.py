@@ -37,6 +37,7 @@ def get_xlstm_dict():
 def get_transformer_dict():
     config = ct.config.model_values
     config.vocab_size = cc.vocab_size
+    config.metadata_vocab_size = cc.metadata_vocab_size
     config = SimpleNamespace(**vars(config), **vars(cc.config.values))
     return config
 
@@ -83,7 +84,7 @@ def train(model):
         for batch_idx, (src, trg, metadata) in enumerate(train_dataloader):
             if model.get_name() == 'xLSTM':
                 src = src.float()
-            output = model(src)
+            output = model(src, metadata)
             output = output.reshape(-1, model.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
             trg = trg.view(-1)  # Flatten the target to [batch_size * seq_len]
 
@@ -107,7 +108,7 @@ def train(model):
             for src, trg, metadata in test_dataloader:
                 if model.get_name() == 'xLSTM':
                     src = src.float()
-                output = model(src)
+                output = model(src, metadata)
                 output = output.reshape(-1, model.vocab_size)
                 trg = trg.view(-1)
                 val_loss += criterion(output, trg).item()

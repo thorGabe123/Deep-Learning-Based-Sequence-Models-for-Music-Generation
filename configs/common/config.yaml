@@ -14,10 +14,10 @@ values:
   device: 'cuda'
   metadata_dims: {"composer": 8}
   dropout: 0.01
-  epochs: 5
+  epochs: 50
   eval_interval: 100
   save_interval: 500
-  learning_rate: 0.1
+  learning_rate: 0.005
   eval_iters: 200
   test_ratio: 0.2
   batch_size: 8

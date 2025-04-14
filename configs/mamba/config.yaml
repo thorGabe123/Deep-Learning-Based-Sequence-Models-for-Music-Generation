@@ -1,9 +1,9 @@
 model_values:
-  d_model: 128
+  d_model: 32
   n_layer: 4
-  d_state: 32
+  d_state: 16
   expand: 4
-  d_conv: 64 
+  d_conv: 32 
   pad_vocab_size_multiple: 8
   conv_bias: True
   bias: False

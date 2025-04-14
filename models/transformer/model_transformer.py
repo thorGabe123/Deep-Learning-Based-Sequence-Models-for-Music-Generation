@@ -7,7 +7,9 @@ def generate_matrix(n: int, x: int) -> torch.Tensor:
     matrix = torch.zeros((n, n), dtype=torch.float32, device=cc.config.values.device)
     
     for i in range(n):
-        matrix[i, : ((i // x) + 1) * x] = 1.0
+        matrix[i, : ((i // x) + 1) * x] = 1.
+        # Set the last 6 columns of each row to 1
+        matrix[i, -6:] = 1.0
     
     return matrix
 
@@ -86,7 +88,7 @@ class Block(nn.Module):
 class PositionalEncoding(nn.Module):
     def __init__(self, n_embd, max_len=5000, device="cuda"):
         super(PositionalEncoding, self).__init__()
-        self.encoding = torch.zeros(max_len, n_embd).to(device)
+        self.encoding = torch.zeros([max_len, n_embd]).to(device)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1).to(device)
         div_term = torch.exp(torch.arange(0, n_embd, 2).float() * (-torch.log(torch.tensor(10000.0)) / n_embd)).to(device)
         self.encoding[:, 0::2] = torch.sin(position // 6 * div_term)
@@ -100,30 +102,36 @@ class Transformer(nn.Module):
     def __init__(self, params):
         super().__init__()
         self.vocab_size = params.vocab_size
-
+        self.metadata_vocab_size = params.metadata_vocab_size
         # Embedding layers for tokens and positions
         self.token_embedding_table = nn.Embedding(params.vocab_size, params.n_embd)
-        # self.token_embedding_table = nn.Embedding(params.metadata_vocab_size, params.n_embd)
-        self.positional_encoding = PositionalEncoding(params.n_embd, params.block_size, params.device)
+        self.metadata_embedding_table = nn.Embedding(params.metadata_vocab_size, params.n_embd)
+        self.positional_encoding = PositionalEncoding(params.n_embd, params.block_len, params.device)
 
         # Transformer blocks
-        self.blocks = nn.Sequential(*[Block(params.n_embd, params.n_heads, params.block_size, params.dropout) for _ in range(params.n_layer)])
+        self.blocks = nn.Sequential(*[Block(params.n_embd, params.n_heads, params.block_len + 6, params.dropout) for _ in range(params.n_layer)])
         self.ln_f = nn.LayerNorm(params.n_embd)  # final layer norm
         self.lm_head = nn.Linear(params.n_embd, params.vocab_size)
 
-    def forward(self, idx, targets=None):
+    def forward(self, idx, metadata_idx, targets=None):
         B, T = idx.shape
 
         # Embedding lookups for tokens and positions
         x = self.token_embedding_table(idx)  # Shape: (B, T, C)
         x = self.positional_encoding(x)
+        metadata_embedding = self.metadata_embedding_table(metadata_idx)
+        x = torch.cat((x, metadata_embedding), dim=-2)
+
+        B1, T1, C1 = x.shape
 
         # Transformer blocks
         x = self.blocks(x)  # Shape: (B, T, C)
         x = self.ln_f(x)    # Shape: (B, T, C)
         logits = self.lm_head(x)  # Shape: (B, T, vocab_size)
 
-        logits = logits.view(B, T, -1)
+        # logits = logits.view(B, T, -1)
+        logits = logits.view(B1, T1, -1)
+        logits = logits[:, :T, :]
         return logits
     
     def get_name(self):

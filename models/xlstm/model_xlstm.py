@@ -20,7 +20,7 @@ class xLSTM(nn.Module):
                 raise ValueError(f"Invalid layer type: {layer_type}. Choose 's' for sLSTM or 'm' for mLSTM.")
             self.layers.append(layer)
 
-        self.output_layer = nn.Linear(1, self.vocab_size)
+        self.output_layer = nn.Linear(params.n_embd, self.vocab_size)
 
     def init_states(self, x):
         [l.init_states(x) for l in self.layers]
@@ -31,14 +31,9 @@ class xLSTM(nn.Module):
         for l in self.layers:
              x = l(x) + x_original
 
-        # Apply the linear transformation
-        x = x.permute(0, 2, 1)
-        x = self.output_layer(x)
+        # Go from n_embd to vocab_size and then normalize
 
-        # # Apply softmax to get probabilities
-        logits = F.softmax(x, dim=-1)
-
-        return logits
+        return x
     
     def get_name(self):
         return 'xLSTM'
