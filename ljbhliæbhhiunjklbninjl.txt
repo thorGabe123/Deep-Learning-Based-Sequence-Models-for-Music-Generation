@@ -1,3 +1,0 @@
-nvidia-smi
-
-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
