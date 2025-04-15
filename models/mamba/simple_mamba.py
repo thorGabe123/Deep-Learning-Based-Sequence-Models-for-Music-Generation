@@ -59,8 +59,10 @@ class Mamba(nn.Module):
         """Full Mamba model."""
         super().__init__()
         self.vocab_size = params.vocab_size
+        self.metadata_vocab_size = params.metadata_vocab_size
         
         self.embedding = nn.Embedding(params.vocab_size, params.d_model)
+        self.metadata_embedding =nn.Embedding(params.metadata_vocab_size, params.d_model)
         self.layers = nn.ModuleList([ResidualBlock(params) for _ in range(params.n_layer)])
         self.norm_f = RMSNorm(params.d_model)
 
@@ -69,7 +71,7 @@ class Mamba(nn.Module):
                                                      # See "Weight Tying" paper
 
 
-    def forward(self, input_ids):
+    def forward(self, input_ids, metadata_ids):
         """
         Args:
             input_ids (long tensor): shape (b, l)    (See Glossary at top for definitions of b, l, d_in, n...)
@@ -81,7 +83,9 @@ class Mamba(nn.Module):
             class MambaLMHeadModel, https://github.com/state-spaces/mamba/blob/main/mamba_ssm/models/mixer_seq_simple.py#L173
 
         """
-        x = self.embedding(input_ids)
+        token_emb = self.embedding(input_ids)
+        meta_emb = self.metadata_embedding(metadata_ids)
+        x = torch.cat((meta_emb, token_emb), dim=-2)
         
         for layer in self.layers:
             x = layer(x)
@@ -89,7 +93,7 @@ class Mamba(nn.Module):
         x = self.norm_f(x)
         logits = self.lm_head(x)
 
-        return logits
+        return logits[:, 6:]
 
     
     @staticmethod

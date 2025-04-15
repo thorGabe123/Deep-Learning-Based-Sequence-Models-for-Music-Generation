@@ -113,19 +113,22 @@ def encode(midi_notes):
 
         token_seq.append(pitch)
         token_seq.append(dynamic)
-        if m.time_end - m.time_start != length_prev:
-            token_seq.append(length)
+        token_seq.append(length)
+        # token_seq.append(time_delta)
+        # if m.time_end - m.time_start != length_prev:
+        #     token_seq.append(length)
         if m.time_start != time_prev:
             token_seq.append(time_delta)
-        if m.channel != channel_prev:
-            token_seq.append(channel)
-        if m.tempo != tempo_prev:
-            token_seq.append(tempo)
-
+        # if m.channel != channel_prev:
+        #     token_seq.append(channel)
+        # if m.tempo != tempo_prev:
+        #     token_seq.append(tempo)
+        token_seq.append(channel)
+        token_seq.append(tempo)
         time_prev = m.time_start
-        length_prev = m.time_end - m.time_start
-        channel_prev = m.channel
-        tempo_prev = m.tempo
+        # length_prev = m.time_end - m.time_start
+        # channel_prev = m.channel
+        # tempo_prev = m.tempo
 
     return token_seq
 

@@ -153,16 +153,15 @@ class SequenceDataset(Dataset):
         # Load the sequence from the .npy file
         file_path = self.file_paths[idx]
         sequence = np.load(file_path)
-        seq_len_extra = self.sequence_length + 6
+        seq_len_extra = self.sequence_length + 1
 
-        if self.sequence_length:
-            if seq_len_extra > len(sequence):
-                padding = np.zeros(seq_len_extra - len(sequence), dtype=np.int64)
-                sequence = np.concatenate([sequence, padding])
-            # Adjust sequence length (truncate or pad)
-            elif len(sequence) > seq_len_extra:
-                ix = random.randint(0, (len(sequence) - seq_len_extra - 1) // 6)
-                sequence = sequence[ix * 6: ix * 6 + seq_len_extra]
+        if seq_len_extra > len(sequence):
+            padding = np.zeros(seq_len_extra - len(sequence), dtype=np.int64)
+            sequence = np.concatenate([sequence, padding])
+        # Adjust sequence length (truncate or pad)
+        elif len(sequence) >= seq_len_extra:
+            ix = random.randint(0, (len(sequence) - seq_len_extra - 1))
+            sequence = sequence[ix: ix + seq_len_extra]
 
         sequence = torch.tensor(sequence, device=cc.config.values.device, dtype=torch.long)
         sequence = self.data_augementation(sequence)
@@ -173,7 +172,7 @@ class SequenceDataset(Dataset):
         band_metadata = self.metadata_dict[band_name].to(cc.config.values.device)
 
         # Return sequence and metadata
-        return sequence[:-6], sequence[6:], band_metadata
+        return sequence[:-1], sequence[1:], band_metadata
 
     def file_prob(self):
         file_prob = [len(np.load(path)) for path in self.file_paths]

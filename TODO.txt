@@ -1,10 +1,9 @@
-Go away from getting increments of 6 with __item__ during processing
-
-Add metadata to Mamba and xLSTM
-
-Add tempo to encoding always
+Add metadata to xLSTM and fix it
 
 Make classifier
 
 Increase block_len in config and set actual parameters
 
+Contact Morten about meeting and extention of deadline
+
+Lav CV

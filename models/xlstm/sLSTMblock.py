@@ -57,7 +57,7 @@ class sLSTMblock(nn.Module):
             self.ct_1 = torch.zeros(batch_size, 1, self.n_embd, device=x.device)
             self.ht_1 = torch.zeros(batch_size, 1, self.n_embd, device=x.device)
             self.mt_1 = torch.zeros(batch_size, 1, self.n_embd, device=x.device)
-
+        
         x = self.ln(x)
         
         x_conv = F.silu(self.drop(self.conv(x.transpose(1, 2)).transpose(1, 2)))

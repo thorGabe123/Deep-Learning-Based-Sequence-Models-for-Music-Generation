@@ -9,6 +9,7 @@ class xLSTM(nn.Module):
         super(xLSTM, self).__init__()
 
         self.vocab_size = params.vocab_size
+        self.token_embedding_table = nn.Embedding(params.vocab_size, params.n_embd)
 
         self.layers = nn.ModuleList()
         for layer_type in params.layers:
@@ -25,8 +26,12 @@ class xLSTM(nn.Module):
     def init_states(self, x):
         [l.init_states(x) for l in self.layers]
     
-    def forward(self, x):
-        x = x.unsqueeze(1)
+    def forward(self, token_ids, meta_ids):
+        print(token_ids.shape)
+        x = self.token_embedding_table(token_ids)
+        # print(x.shape)
+        # x = x.unsqueeze(1)
+        print(x.shape)
         x_original = x.clone()
         for l in self.layers:
              x = l(x) + x_original
