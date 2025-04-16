@@ -1,5 +1,5 @@
 model_values:
-  d_model: 32
+  d_model: 64
   n_layer: 4
   d_state: 16
   expand: 4

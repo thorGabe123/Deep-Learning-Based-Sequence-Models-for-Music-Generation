@@ -49,7 +49,7 @@ class sLSTMblock(nn.Module):
         self.mt_1 = torch.zeros(1, 1, self.n_embd, device=params.device)
         
     def forward(self, x):
-        batch_size = x.size(0)
+        batch_size, block_len, emb_dim = x.shape
         
         # Adjust the state tensors to the current batch size
         if self.mt_1.size(0) != batch_size:
@@ -69,9 +69,9 @@ class sLSTMblock(nn.Module):
         f = torch.exp(self.ln_f(self.f_gate(x_conv) + self.rf_gate(ht_1)))
 
         # Handle broadcasting and operations correctly
-        m = torch.max(torch.log(f) + self.mt_1[:, 0, :], torch.log(i))
+        m = torch.max(torch.log(f) + self.mt_1[:, :, :], torch.log(i))
         i = torch.exp(torch.log(i) - m)
-        f = torch.exp(torch.log(f) + self.mt_1[:, 0, :] - m)
+        f = torch.exp(torch.log(f) + self.mt_1[:, :, :] - m)
         self.mt_1 = m.detach()
         
         o = torch.sigmoid(self.ln_o(self.o_gate(x) + self.ro_gate(ht_1)))

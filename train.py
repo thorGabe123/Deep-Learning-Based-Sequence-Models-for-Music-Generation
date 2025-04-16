@@ -84,8 +84,6 @@ def train(model):
         total_loss = 0
 
         for batch_idx, (src, trg, metadata) in enumerate(train_dataloader):
-            # if model.get_name() == 'xLSTM':
-            #     src = src.float()
             output = model(src, metadata)
             output = output.reshape(-1, model.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
             trg = trg.view(-1)  # Flatten the target to [batch_size * seq_len]
@@ -108,8 +106,6 @@ def train(model):
         val_loss = 0
         with torch.no_grad():
             for src, trg, metadata in test_dataloader:
-                # if model.get_name() == 'xLSTM':
-                #     src = src.float()
                 output = model(src, metadata)
                 output = output.reshape(-1, model.vocab_size)
                 trg = trg.view(-1)
