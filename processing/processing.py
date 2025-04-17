@@ -78,6 +78,34 @@ def extract_midi(path):
 
     return midi_notes
 
+def note_to_midi(midi_notes, default_tempo=120):
+    midi_object = pretty_midi.PrettyMIDI()
+
+    # Group notes by channel if you have multiple channels
+    channel_to_notes = {}
+    for note in midi_notes:
+        channel_to_notes.setdefault(note.channel, []).append(note)
+
+    for channel, notes in channel_to_notes.items():
+        instrument = pretty_midi.Instrument(program=channel, is_drum=False)
+        for note in notes:
+            pm_note = pretty_midi.Note(
+                velocity=int(note.dynamic),
+                pitch=int(note.pitch),
+                start=float(note.time_start),
+                end=float(note.time_end)
+            )
+            instrument.notes.append(pm_note)
+        midi_object.instruments.append(instrument)
+
+    # Set the tempo using the first note's tempo (as an example)
+    if midi_notes and hasattr(midi_notes[0], 'tempo'):
+        tempo_bpm = float(midi_notes[0].tempo)
+    else:
+        tempo_bpm = default_tempo
+    midi_object._set_tempo_changes([0.0], [tempo_bpm])
+    return midi_object
+
 def adjust_note_time(midi_notes):
     res_per_beat = cc.config.resolution.bar_res
     current_beats = 0
@@ -155,22 +183,41 @@ def decode(token_seq):
     decoded_notes = []
     prev_time = 0
 
-    for i in range(0, len(token_seq), 6):  # Process tokens in groups of 6
-        dynamic = token_seq[i] - cc.start_idx['dyn']
-        pitch = token_seq[i + 1] - cc.start_idx['pitch']
-        length = token_seq[i + 2] - cc.start_idx['length']
-        time_delta = token_seq[i + 3] - cc.start_idx['time']
-        channel = token_seq[i + 4] - cc.start_idx['channel']
-        tempo = token_seq[i + 5] - cc.start_idx['tempo']
+    dynamic = None
+    pitch = None
+    length = None
+    time_delta = 0
+    channel = None
+    tempo = None
 
-        note = MIDI_note(dynamic=dynamic,
-            pitch = pitch,
-            time_start = prev_time + time_delta,
-            time_end = prev_time + time_delta + length,
-            channel = channel,
-            tempo = tempo
-        )
-        decoded_notes.append(note)
+    for token in token_seq:
+        if token < cc.start_idx['dyn']:
+            pitch = token - cc.start_idx['pitch']
+        elif cc.start_idx['dyn'] <= token and token < cc.start_idx['length']:
+            dynamic = token - cc.start_idx['dyn']
+        elif cc.start_idx['length'] <= token and token < cc.start_idx['time']:
+            length = token - cc.start_idx['length']
+        elif cc.start_idx['time'] <= token and token < cc.start_idx['channel']:
+            time_delta = token - cc.start_idx['time']
+        elif cc.start_idx['channel'] <= token and token < cc.start_idx['tempo']:
+            channel = token - cc.start_idx['channel']
+        elif cc.start_idx['tempo'] <= token:
+            tempo = token - cc.start_idx['tempo']
+
+        if all(x is not None for x in [dynamic, pitch, length, time_delta, channel, tempo]):
+            note = MIDI_note(dynamic=dynamic,
+                pitch = pitch,
+                time_start = prev_time + time_delta,
+                time_end = prev_time + time_delta + length,
+                channel = channel,
+                tempo = tempo
+            )
+            decoded_notes.append(note)
+            dynamic = None
+            pitch = None
+            length = None
+            channel = None
+            tempo = None
         prev_time = prev_time + time_delta
 
     revert_note_time(decoded_notes)
