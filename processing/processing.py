@@ -62,7 +62,10 @@ def extract_midi(path):
 
     midi_notes = []
     for inst in mid.instruments:
-        channel = int(inst.program)
+        if not inst.is_drum:
+            channel = int(inst.program)
+        else:
+            channel = 128
         for n in inst.notes:
             idx = next((i for i, t in enumerate(tempo_bpm) if tempo_times[i] <= n.start < tempo_times[i + 1]))
         
@@ -78,7 +81,7 @@ def extract_midi(path):
 
     return midi_notes
 
-def note_to_midi(midi_notes, default_tempo=120):
+def note_to_midi(midi_notes, output_path):
     midi_object = pretty_midi.PrettyMIDI()
 
     # Group notes by channel if you have multiple channels
@@ -87,7 +90,10 @@ def note_to_midi(midi_notes, default_tempo=120):
         channel_to_notes.setdefault(note.channel, []).append(note)
 
     for channel, notes in channel_to_notes.items():
-        instrument = pretty_midi.Instrument(program=channel, is_drum=False)
+        if channel == 128:
+            instrument = pretty_midi.Instrument(program=0, is_drum=True)
+        else:
+            instrument = pretty_midi.Instrument(program=channel, is_drum=False)
         for note in notes:
             pm_note = pretty_midi.Note(
                 velocity=int(note.dynamic),
@@ -98,13 +104,11 @@ def note_to_midi(midi_notes, default_tempo=120):
             instrument.notes.append(pm_note)
         midi_object.instruments.append(instrument)
 
-    # Set the tempo using the first note's tempo (as an example)
-    if midi_notes and hasattr(midi_notes[0], 'tempo'):
-        tempo_bpm = float(midi_notes[0].tempo)
-    else:
-        tempo_bpm = default_tempo
-    midi_object._set_tempo_changes([0.0], [tempo_bpm])
-    return midi_object
+    update_tempo(midi_object, midi_notes)
+
+    os.makedirs("midi", exist_ok=True)
+
+    midi_object.write(f"midi/{output_path}")
 
 def adjust_note_time(midi_notes):
     res_per_beat = cc.config.resolution.bar_res
@@ -128,9 +132,7 @@ def encode(midi_notes):
 
     token_seq = []
     time_prev = 0
-    length_prev = 0
-    channel_prev = 0
-    tempo_prev = 0
+    time_delta_prev = 0
     for idx, m in enumerate(midi_notes):
         dynamic = cc.start_idx['dyn'] + min(m.dynamic, cc.config.discretization.dyn - 1)
         pitch = cc.start_idx['pitch'] + min(m.pitch, cc.config.discretization.pitch - 1)
@@ -142,21 +144,12 @@ def encode(midi_notes):
         token_seq.append(pitch)
         token_seq.append(dynamic)
         token_seq.append(length)
-        # token_seq.append(time_delta)
-        # if m.time_end - m.time_start != length_prev:
-        #     token_seq.append(length)
-        if m.time_start != time_prev:
+        if time_delta_prev != time_delta:
             token_seq.append(time_delta)
-        # if m.channel != channel_prev:
-        #     token_seq.append(channel)
-        # if m.tempo != tempo_prev:
-        #     token_seq.append(tempo)
         token_seq.append(channel)
         token_seq.append(tempo)
         time_prev = m.time_start
-        # length_prev = m.time_end - m.time_start
-        # channel_prev = m.channel
-        # tempo_prev = m.tempo
+        time_delta_prev = time_delta
 
     return token_seq
 
@@ -204,13 +197,13 @@ def decode(token_seq):
         elif cc.start_idx['tempo'] <= token:
             tempo = token - cc.start_idx['tempo']
 
-        if all(x is not None for x in [dynamic, pitch, length, time_delta, channel, tempo]):
-            note = MIDI_note(dynamic=dynamic,
-                pitch = pitch,
-                time_start = prev_time + time_delta,
-                time_end = prev_time + time_delta + length,
-                channel = channel,
-                tempo = tempo
+        if all([x is not None for x in [dynamic, pitch, length, time_delta, channel, tempo]]):
+            note = MIDI_note(dynamic=int(dynamic),
+                pitch = int(pitch),
+                time_start = float(prev_time + time_delta),
+                time_end = float(prev_time + time_delta + length),
+                channel = int(channel),
+                tempo = float(tempo)
             )
             decoded_notes.append(note)
             dynamic = None
@@ -218,10 +211,22 @@ def decode(token_seq):
             length = None
             channel = None
             tempo = None
-        prev_time = prev_time + time_delta
+            
+            prev_time = prev_time + time_delta
 
     revert_note_time(decoded_notes)
     return decoded_notes
+
+def update_tempo(mid, decoded_notes):
+    new_tick_scales = []
+    prev_tempo = 0
+    for note in decoded_notes:
+        if prev_tempo != note.tempo:
+            tempo = 60.0/(note.tempo*mid.resolution)
+            time = mid.time_to_tick(note.time_start)
+            new_tick_scales.append((time, tempo))
+            prev_tempo = note.tempo
+    mid._tick_scales = new_tick_scales
 
 def get_directory_size(directory):
     """Calculate the total size of a directory."""

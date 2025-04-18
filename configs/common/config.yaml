@@ -3,7 +3,7 @@ discretization:
   dyn: 128
   length: 100
   time: 100
-  channel: 128
+  channel: 129 # 128 + drum channel
   tempo: 250
 
 resolution:

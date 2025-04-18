@@ -1,8 +1,12 @@
 Add metadata to xLSTM and fix it
 
+Correct drums as seperate channel
+
+Add instruments to metadata
+
 Make classifier
 
-Increase block_len in config and set actual parameters
+Set actual parameters for configs
 
 Contact Morten about meeting and extention of deadline
 
