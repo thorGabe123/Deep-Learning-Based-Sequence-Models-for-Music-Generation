@@ -1,0 +1,6 @@
+paths:
+  midi_dataset: F:/GitHub/dataset/midi_dataset
+  np_dataset: F:/GitHub/dataset/np_dataset
+  tokenizations: F:/GitHub/dataset/midi_dataset/tokenizations.json
+  metadata: F:/GitHub/dataset/midi_dataset/metadata.json
+  pretrained: F:/GitHub/Deep-Learning-Based-Sequence-Models-for-Music-Generation/pretrained

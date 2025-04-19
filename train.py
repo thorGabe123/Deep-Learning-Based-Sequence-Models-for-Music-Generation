@@ -10,6 +10,7 @@ import processing
 from types import SimpleNamespace
 import os
 from datetime import datetime
+import configs.paths as paths
 
 def get_actual_vocab_size(type):
     config = cm.config.model_values
@@ -57,13 +58,15 @@ def new_model(type):
 
 def load_model(type, name):
     model = new_model(type)
-    model.load_state_dict(torch.load(f'pretrained/{type}/{name}'))
+    pretrained = paths.config.paths.pretrained
+    model.load_state_dict(torch.load(f'{pretrained}/{type}/{name}'))
     return model
 
 def save_model(model, loss):
     now = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    pretrained_path = paths.config.paths.pretrained
 
-    save_path = f'pretrained/{args.model}/loss_{loss:.2f}_time_{now}.pth'
+    save_path = f'{pretrained_path}/{args.model}/loss_{loss:.2f}_time_{now}.pth'
 
     if not os.path.exists(os.path.dirname(save_path)):
         os.makedirs(os.path.dirname(save_path))
@@ -71,7 +74,8 @@ def save_model(model, loss):
 
 def train(model):
     model.to(cc.config.values.device)
-    loader = processing.DatasetLoader('..\\dataset\\np_dataset')
+    dataset_path = paths.config.paths.np_dataset
+    loader = processing.DatasetLoader(dataset_path)
     train_dataloader, test_dataloader = loader.get_dataloaders()
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=cc.config.values.learning_rate)

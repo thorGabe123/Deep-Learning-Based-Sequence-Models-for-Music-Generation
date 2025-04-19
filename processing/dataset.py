@@ -7,6 +7,7 @@ from pathlib import Path
 import json
 from processing import *
 import configs.common as cc
+import configs.paths as paths
 
 current_dir = Path(__file__).parent
 
@@ -32,7 +33,7 @@ def multiply_sequence(sequence, rand_ints, lower_bound, upper_bound):
     return multiplied_sequence
 
 def get_metadata_json():
-    metadata_path = current_dir / '../../dataset/midi_dataset/metadata.json'
+    metadata_path = paths.config.paths.metadata
     with open(metadata_path, 'r') as f:
         metadata = json.load(f)
     return metadata
@@ -40,7 +41,7 @@ def get_metadata_json():
 def save_metadata_tokenizations(tokenizations):
     meta_vocab_size = sum([len(x) for x in tokenizations.values()])
     tokenizations['VOCAB_SIZE'] = meta_vocab_size
-    tokenizations_path = current_dir / '../../dataset/midi_dataset/tokenizations.json'
+    tokenizations_path = paths.config.paths.tokenizations
     with open(tokenizations_path, 'w') as f:
             json.dump(tokenizations, f, indent=4)
 
@@ -252,7 +253,7 @@ class DatasetLoader:
         return self.dataset[random_index]
 
     def get_metadata_vocab_size():
-        tokenizations_path = current_dir / '../../dataset/midi_dataset/tokenizations.json'
+        tokenizations_path = paths.config.paths.tokenizations
         with open(tokenizations_path, 'r') as f:
             tokenizations = json.load(f)
         return tokenizations['VOCAB_SIZE']
