@@ -1,7 +1,5 @@
 Add metadata to xLSTM and fix it
 
-Make it so drums are not augmented during training
-
 Add instruments to metadata
 
 Make classifier

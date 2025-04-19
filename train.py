@@ -96,7 +96,7 @@ def train(model):
             
             total_loss += loss.item()
 
-            if (batch_idx + 1) % 100 == 0:
+            if (batch_idx + 1) % cc.config.values.eval_interval == 0:
                 print(f'Epoch [{epoch+1}/{num_epochs}], Step [{batch_idx+1}/{len(train_dataloader)}], Loss: {loss.item():.4f}')
 
         avg_loss = total_loss / len(train_dataloader)

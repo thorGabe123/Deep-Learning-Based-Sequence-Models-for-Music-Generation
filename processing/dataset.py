@@ -22,14 +22,13 @@ def shift_sequence_drums(sequence, rand_int, lower_bound, upper_bound):
     prev = torch.roll(sequence, shifts=1)
     prev_mask = (prev < cc.start_idx['channel'] + 128) | (prev >= cc.start_idx['tempo'])
     combined_mask = mask & prev_mask
-    print(combined_mask.sum())
     shifted_sequence[combined_mask] = torch.clamp(sequence[combined_mask] + rand_int, min=lower_bound, max=upper_bound - 1)
     return shifted_sequence
 
 def multiply_sequence(sequence, rand_ints, lower_bound, upper_bound):
     multiplied_sequence = sequence.clone()
     mask = (sequence >= lower_bound) & (sequence < upper_bound)
-    multiplied_sequence[mask] = torch.clamp((sequence[mask] - lower_bound) * rand_ints + lower_bound, min=lower_bound, max=upper_bound - 1)
+    multiplied_sequence[mask] = torch.clamp((sequence[mask] - lower_bound) * rand_ints + lower_bound, min=lower_bound, max=upper_bound - 1).to(multiplied_sequence.dtype)
     return multiplied_sequence
 
 def get_metadata_json():
@@ -143,7 +142,7 @@ class SequenceDataset(Dataset):
         sequence = shift_sequence(sequence, vel_r_ints, vel_lb, vel_ub)
 
         # Time multiplication
-        time_r_ints = random.randint(1, 8) // 2
+        time_r_ints = random.randint(1, 8) / 2
         time_lb = cc.start_idx['time']
         time_ub = cc.start_idx['time'] + cc.config.discretization.time - 1
         sequence = multiply_sequence(sequence, time_r_ints, time_lb, time_ub)
