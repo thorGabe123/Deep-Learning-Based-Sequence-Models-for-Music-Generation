@@ -1,6 +1,6 @@
 Add metadata to xLSTM and fix it
 
-Correct drums as seperate channel
+Make it so drums are not augmented during training
 
 Add instruments to metadata
 

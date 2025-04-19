@@ -16,6 +16,16 @@ def shift_sequence(sequence, rand_int, lower_bound, upper_bound):
     shifted_sequence[mask] = torch.clamp(sequence[mask] + rand_int, min=lower_bound, max=upper_bound - 1)
     return shifted_sequence
 
+def shift_sequence_drums(sequence, rand_int, lower_bound, upper_bound):
+    shifted_sequence = sequence.clone()
+    mask = (sequence >= lower_bound) & (sequence < upper_bound)
+    prev = torch.roll(sequence, shifts=1)
+    prev_mask = (prev < cc.start_idx['channel'] + 128) | (prev >= cc.start_idx['tempo'])
+    combined_mask = mask & prev_mask
+    print(combined_mask.sum())
+    shifted_sequence[combined_mask] = torch.clamp(sequence[combined_mask] + rand_int, min=lower_bound, max=upper_bound - 1)
+    return shifted_sequence
+
 def multiply_sequence(sequence, rand_ints, lower_bound, upper_bound):
     multiplied_sequence = sequence.clone()
     mask = (sequence >= lower_bound) & (sequence < upper_bound)
@@ -123,8 +133,8 @@ class SequenceDataset(Dataset):
         # Pitch shifting
         note_r_ints = random.randint(-12, 12)
         note_lb = cc.start_idx['pitch']
-        note_ub = cc.start_idx['pitch'] + cc.config.discretization.pitch - 1
-        sequence = shift_sequence(sequence, note_r_ints, note_lb, note_ub)
+        note_ub = cc.start_idx['pitch'] + 128 - 1
+        sequence = shift_sequence_drums(sequence, note_r_ints, note_lb, note_ub)
 
         # Velocity shifting
         vel_r_ints = random.randint(-20, 20)

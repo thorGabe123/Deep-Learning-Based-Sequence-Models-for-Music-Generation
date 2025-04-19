@@ -65,7 +65,7 @@ def extract_midi(path):
         if not inst.is_drum:
             channel = int(inst.program)
         else:
-            channel = 128
+            channel += 128
         for n in inst.notes:
             idx = next((i for i, t in enumerate(tempo_bpm) if tempo_times[i] <= n.start < tempo_times[i + 1]))
         
@@ -90,8 +90,8 @@ def note_to_midi(midi_notes, output_path):
         channel_to_notes.setdefault(note.channel, []).append(note)
 
     for channel, notes in channel_to_notes.items():
-        if channel == 128:
-            instrument = pretty_midi.Instrument(program=0, is_drum=True)
+        if channel >= 128:
+            instrument = pretty_midi.Instrument(program=channel-128, is_drum=True)
         else:
             instrument = pretty_midi.Instrument(program=channel, is_drum=False)
         for note in notes:
@@ -141,12 +141,12 @@ def encode(midi_notes):
         channel = cc.start_idx['channel'] + min(m.channel, cc.config.discretization.channel - 1)
         tempo = cc.start_idx['tempo'] + min(m.tempo, cc.config.discretization.tempo - 1)
 
+        token_seq.append(channel)
         token_seq.append(pitch)
         token_seq.append(dynamic)
         token_seq.append(length)
         if time_delta_prev != time_delta:
             token_seq.append(time_delta)
-        token_seq.append(channel)
         token_seq.append(tempo)
         time_prev = m.time_start
         time_delta_prev = time_delta
