@@ -1,5 +1,7 @@
 Add metadata to xLSTM and fix it
 
+Determine token importance by their inverse presence in the dataset (rarer = more important) and feed it as an additional input
+
 Add instruments to metadata
 
 Make classifier

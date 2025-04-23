@@ -65,7 +65,8 @@ def extract_midi(path):
         if not inst.is_drum:
             channel = int(inst.program)
         else:
-            channel += 128
+            continue
+            # channel += 128
         for n in inst.notes:
             idx = next((i for i, t in enumerate(tempo_bpm) if tempo_times[i] <= n.start < tempo_times[i + 1]))
         

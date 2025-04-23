@@ -16,7 +16,7 @@ def dict_to_namespace(d):
     return d
 
 def load_tokenizations():
-    metadata_path = "F:/GitHub/dataset/midi_dataset/tokenizations.json"
+    metadata_path = "E:/GitHub/dataset/midi_dataset/tokenizations.json"
     with open(metadata_path, "r") as file:
         return json.load(file)
 
