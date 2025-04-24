@@ -11,6 +11,8 @@ from types import SimpleNamespace
 import os
 from datetime import datetime
 import configs.paths as paths
+import torch.nn.functional as F
+import torch
 
 def get_actual_vocab_size(type):
     config = cm.config.model_values
@@ -72,12 +74,22 @@ def save_model(model, loss):
         os.makedirs(os.path.dirname(save_path))
     torch.save(model.state_dict(), save_path)
 
+def cross_entropy_loss(input, target, reduction='mean'):
+    log_probs = F.log_softmax(input, dim=1)
+    loss = -log_probs.gather(1, target.unsqueeze(1)).squeeze(1)
+    if reduction == 'mean':
+        return loss.mean()
+    elif reduction == 'sum':
+        return loss.sum()
+    else: # 'none'
+        return loss
+
 def train(model):
     model.to(cc.config.values.device)
     dataset_path = paths.config.paths.np_dataset
     loader = processing.DatasetLoader(dataset_path)
     train_dataloader, test_dataloader = loader.get_dataloaders()
-    criterion = torch.nn.CrossEntropyLoss()
+    criterion = cross_entropy_loss()
     optimizer = torch.optim.Adam(model.parameters(), lr=cc.config.values.learning_rate)
 
     # Training loop
