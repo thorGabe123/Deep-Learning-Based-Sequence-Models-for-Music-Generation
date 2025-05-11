@@ -74,22 +74,82 @@ def save_model(model, loss):
         os.makedirs(os.path.dirname(save_path))
     torch.save(model.state_dict(), save_path)
 
-def cross_entropy_loss(input, target, reduction='mean'):
-    log_probs = F.log_softmax(input, dim=1)
-    loss = -log_probs.gather(1, target.unsqueeze(1)).squeeze(1)
-    if reduction == 'mean':
-        return loss.mean()
-    elif reduction == 'sum':
-        return loss.sum()
-    else: # 'none'
-        return loss
+def make_distributions():
+    # Prepare output tensor
+    block_len = cc.config.values.block_len
+    device = cc.config.values.device
+    vocab_size = cc.vocab_size
+    distributions = torch.zeros(6, vocab_size, device=device)
+
+    # For each token index, fill in regions with 1 as per your logic.
+    start = [cc.start_idx["pitch"],
+             cc.start_idx["dyn"],
+             cc.start_idx["length"],
+             cc.start_idx["time"],
+             cc.start_idx["channel"],
+             cc.start_idx["tempo"]]
+    end   = [cc.start_idx["dyn"] - 1,
+             cc.start_idx["length"] - 1,
+             cc.start_idx["time"] - 1,
+             cc.start_idx["channel"] - 1,
+             cc.start_idx["tempo"] - 1,
+             cc.vocab_size]   # block_len implies : to the end
+
+    for token in range(6):
+        if token == 0:
+            distributions[token, start[1]:end[1]] = 1
+        if token == 1:
+            distributions[token, start[2]:end[2]] = 1
+        if token == 2:
+            distributions[token, start[3]:end[3]] = 1
+            distributions[token, start[5]:end[5]] = 1
+        if token == 3:
+            distributions[token, start[5]:end[5]] = 1
+        if token == 4:
+            distributions[token, start[0]:end[0]] = 1
+        if token == 5:
+            distributions[token, start[4]:end[4]] = 1
+
+    return distributions
+
+
+def pick_distributions_by_prev_token(
+        input_tokens: torch.Tensor
+    ) -> torch.Tensor:
+    boundaries = [
+                cc.start_idx['dyn'] - 1,
+                cc.start_idx['length'] - 1,
+                cc.start_idx['time'] - 1,
+                cc.start_idx['channel'] - 1,
+                cc.start_idx['tempo'] - 1]
+        
+    bins = torch.tensor(boundaries, device=input_tokens.device)
+        # Each token is assigned to a bucket 0..len(boundaries)
+        # For example, with bins=[10,20,30]: 
+        #   token <10 → 0, 10<=token<20 → 1, 20<=token<30 → 2, 30<=token → 3
+    buckets = torch.bucketize(input_tokens, bins, right=False)
+    distributions = make_distributions()
+
+    # Ensure buckets is long (int64) and on the same device as distributions
+    buckets = buckets.long().to(distributions.device)
+
+    # Now use advanced indexing to get values
+    output = distributions[buckets]  # shape: [6, 963]
+
+    return output
+
+def filtered_logit(input, output):
+    weights = pick_distributions_by_prev_token(input)
+    log_probs = F.log_softmax(output, dim=1)
+    loss = -log_probs * weights
+    return loss
 
 def train(model):
     model.to(cc.config.values.device)
     dataset_path = paths.config.paths.np_dataset
     loader = processing.DatasetLoader(dataset_path)
     train_dataloader, test_dataloader = loader.get_dataloaders()
-    criterion = cross_entropy_loss()
+    criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=cc.config.values.learning_rate)
 
     # Training loop
@@ -101,10 +161,11 @@ def train(model):
 
         for batch_idx, (src, trg, metadata) in enumerate(train_dataloader):
             output = model(src, metadata)
-            output = output.reshape(-1, model.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
+            filtered_output = filtered_logit(src,output)
+            filtered_output = filtered_output.reshape(-1, output.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
             trg = trg.view(-1)  # Flatten the target to [batch_size * seq_len]
 
-            loss = criterion(output, trg)
+            loss = criterion(filtered_output, trg)
             
             optimizer.zero_grad()
             loss.backward()
@@ -123,9 +184,10 @@ def train(model):
         with torch.no_grad():
             for src, trg, metadata in test_dataloader:
                 output = model(src, metadata)
-                output = output.reshape(-1, model.vocab_size)
+                filtered_output = filtered_logit(src,output)
+                filtered_output = filtered_output.reshape(-1, output.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
                 trg = trg.view(-1)
-                val_loss += criterion(output, trg).item()
+                val_loss += criterion(filtered_output, trg).item()
         
         avg_val_loss = val_loss / len(test_dataloader)
         print(f'Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}')

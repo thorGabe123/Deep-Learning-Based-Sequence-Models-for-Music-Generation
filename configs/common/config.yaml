@@ -16,7 +16,7 @@ values:
   dropout: 0.01
   epochs: 1000
   eval_interval: 10
-  save_interval: 5
+  save_interval: 2
   learning_rate: 0.0001
   eval_iters: 200
   test_ratio: 0.2
