@@ -1,5 +1,5 @@
 model_values:
   layers: ['s', 'm', 's', 'm', 's', 'm']
-  n_embd: 512
+  n_embd: 256
   depth: 8
   factor: 2

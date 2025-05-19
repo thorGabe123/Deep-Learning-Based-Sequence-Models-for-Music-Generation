@@ -79,7 +79,7 @@ def make_distributions():
     block_len = cc.config.values.block_len
     device = cc.config.values.device
     vocab_size = cc.vocab_size
-    distributions = torch.zeros(6, vocab_size, device=device)
+    distributions = torch.ones(6, vocab_size, device=device)
 
     # For each token index, fill in regions with 1 as per your logic.
     start = [cc.start_idx["pitch"],
@@ -97,18 +97,17 @@ def make_distributions():
 
     for token in range(6):
         if token == 0:
-            distributions[token, start[1]:end[1]] = 1
+            distributions[token, start[0]:end[0]] = 0
         if token == 1:
-            distributions[token, start[2]:end[2]] = 1
+            distributions[token, start[1]:end[1]] = 0
         if token == 2:
-            distributions[token, start[3]:end[3]] = 1
-            distributions[token, start[5]:end[5]] = 1
+            distributions[token, start[2]:end[2]] = 0
         if token == 3:
-            distributions[token, start[5]:end[5]] = 1
+            distributions[token, start[3]:end[3]] = 0
         if token == 4:
-            distributions[token, start[0]:end[0]] = 1
+            distributions[token, start[4]:end[4]] = 0
         if token == 5:
-            distributions[token, start[4]:end[4]] = 1
+            distributions[token, start[5]:end[5]] = 0
 
     return distributions
 
@@ -162,7 +161,7 @@ def train(model):
         for batch_idx, (src, trg, metadata) in enumerate(train_dataloader):
             output = model(src, metadata)
             filtered_output = filtered_logit(src,output)
-            filtered_output = filtered_output.reshape(-1, output.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
+            filtered_output = filtered_output.reshape(-1, cc.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
             trg = trg.view(-1)  # Flatten the target to [batch_size * seq_len]
 
             loss = criterion(filtered_output, trg)
@@ -185,7 +184,7 @@ def train(model):
             for src, trg, metadata in test_dataloader:
                 output = model(src, metadata)
                 filtered_output = filtered_logit(src,output)
-                filtered_output = filtered_output.reshape(-1, output.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
+                filtered_output = filtered_output.reshape(-1, cc.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
                 trg = trg.view(-1)
                 val_loss += criterion(filtered_output, trg).item()
         

@@ -32,7 +32,7 @@ class xLSTM(nn.Module):
     def forward(self, token_ids, meta_ids):
         x = self.token_embedding_table(token_ids)
         metadata_embedding = self.metadata_embedding_table(meta_ids)
-        x = torch.cat((x, metadata_embedding), dim=-2)
+        x = torch.cat((metadata_embedding, x), dim=-2)
         x_original = x.clone()
         for l in self.layers:
              x = l(x) + x_original
@@ -40,6 +40,7 @@ class xLSTM(nn.Module):
 
         # Go from n_embd to vocab_size and then normalize
 
+        # return x
         return x[:, 6:]
     
     def get_name(self):

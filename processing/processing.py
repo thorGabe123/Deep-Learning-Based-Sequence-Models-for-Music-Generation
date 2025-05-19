@@ -132,8 +132,13 @@ def encode(midi_notes):
     adjust_note_time(midi_notes)
 
     token_seq = []
+    channel_prev = 0
+    pitch_prev = 0
+    dyn_prev = 0
+    length_prev = 0
     time_prev = 0
     time_delta_prev = 0
+    tempo_prev = 0
     for idx, m in enumerate(midi_notes):
         dynamic = cc.start_idx['dyn'] + min(m.dynamic, cc.config.discretization.dyn - 1)
         pitch = cc.start_idx['pitch'] + min(m.pitch, cc.config.discretization.pitch - 1)
@@ -142,15 +147,25 @@ def encode(midi_notes):
         channel = cc.start_idx['channel'] + min(m.channel, cc.config.discretization.channel - 1)
         tempo = cc.start_idx['tempo'] + min(m.tempo, cc.config.discretization.tempo - 1)
 
-        token_seq.append(channel)
-        token_seq.append(pitch)
-        token_seq.append(dynamic)
-        token_seq.append(length)
+        if channel != channel_prev:
+            token_seq.append(channel)
+        if pitch_prev != pitch:
+            token_seq.append(pitch)
+        if dyn_prev != dynamic:
+            token_seq.append(dynamic)
+        if length_prev != length:
+            token_seq.append(length)
         if time_delta_prev != time_delta:
             token_seq.append(time_delta)
-        token_seq.append(tempo)
+        if tempo_prev != tempo:
+            token_seq.append(tempo)
         time_prev = m.time_start
         time_delta_prev = time_delta
+        channel_prev = channel
+        pitch_prev = pitch
+        length_prev = length
+        tempo_prev = tempo
+        dyn_prev = dynamic
 
     return token_seq
 
