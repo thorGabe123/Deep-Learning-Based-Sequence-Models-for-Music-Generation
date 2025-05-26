@@ -3,14 +3,14 @@ discretization:
   dyn: 128
   length: 100
   time: 100
-  channel: 256 # 128 instruments + 128 drum channels
+  channel: 129 # 128 instruments + 1 drum channels
   tempo: 250
 
 resolution:
   bar_res: 24
   
 values:
-  block_len: 512
+  block_len: 256
   device: 'cuda'
   metadata_dims: {"composer": 8}
   dropout: 0.01

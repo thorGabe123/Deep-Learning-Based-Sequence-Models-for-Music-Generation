@@ -128,44 +128,29 @@ def adjust_note_time(midi_notes):
         else:
             midi_notes[idx].time_end = int(future_beats)
 
+
 def encode(midi_notes):
     adjust_note_time(midi_notes)
 
     token_seq = []
-    channel_prev = 0
-    pitch_prev = 0
-    dyn_prev = 0
-    length_prev = 0
     time_prev = 0
     time_delta_prev = 0
-    tempo_prev = 0
     for idx, m in enumerate(midi_notes):
+        pitch = cc.start_idx['pitch'] + min(m.pitch + m.channel * cc.config.discretization.pitch, cc.config.discretization.pitch * cc.config.discretization.channel - 1)
         dynamic = cc.start_idx['dyn'] + min(m.dynamic, cc.config.discretization.dyn - 1)
-        pitch = cc.start_idx['pitch'] + min(m.pitch, cc.config.discretization.pitch - 1)
         length = cc.start_idx['length'] + min(m.time_end - m.time_start, cc.config.discretization.length - 1)
         time_delta = cc.start_idx['time'] + min(m.time_start - time_prev, cc.config.discretization.time - 1)
-        channel = cc.start_idx['channel'] + min(m.channel, cc.config.discretization.channel - 1)
         tempo = cc.start_idx['tempo'] + min(m.tempo, cc.config.discretization.tempo - 1)
 
-        if channel != channel_prev:
-            token_seq.append(channel)
-        if pitch_prev != pitch:
-            token_seq.append(pitch)
-        if dyn_prev != dynamic:
-            token_seq.append(dynamic)
-        if length_prev != length:
-            token_seq.append(length)
+        token_seq.append(pitch + m.channel * cc.config.discretization.pitch)
+        token_seq.append(dynamic)
+        token_seq.append(length)
         if time_delta_prev != time_delta:
             token_seq.append(time_delta)
-        if tempo_prev != tempo:
-            token_seq.append(tempo)
+        token_seq.append(tempo)
         time_prev = m.time_start
         time_delta_prev = time_delta
-        channel_prev = channel
-        pitch_prev = pitch
-        length_prev = length
-        tempo_prev = tempo
-        dyn_prev = dynamic
+        
 
     return token_seq
 
@@ -201,15 +186,15 @@ def decode(token_seq):
 
     for token in token_seq:
         if token < cc.start_idx['dyn']:
-            pitch = token - cc.start_idx['pitch']
+            count, remainder = divmod(int(token), cc.config.discretization.pitch)
+            channel = count
+            pitch = remainder
         elif cc.start_idx['dyn'] <= token and token < cc.start_idx['length']:
             dynamic = token - cc.start_idx['dyn']
         elif cc.start_idx['length'] <= token and token < cc.start_idx['time']:
             length = token - cc.start_idx['length']
-        elif cc.start_idx['time'] <= token and token < cc.start_idx['channel']:
+        elif cc.start_idx['time'] <= token and token < cc.start_idx['tempo']:
             time_delta = token - cc.start_idx['time']
-        elif cc.start_idx['channel'] <= token and token < cc.start_idx['tempo']:
-            channel = token - cc.start_idx['channel']
         elif cc.start_idx['tempo'] <= token:
             tempo = token - cc.start_idx['tempo']
 

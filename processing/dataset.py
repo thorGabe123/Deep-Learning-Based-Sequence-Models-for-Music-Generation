@@ -20,10 +20,12 @@ def shift_sequence(sequence, rand_int, lower_bound, upper_bound):
 def shift_sequence_drums(sequence, rand_int, lower_bound, upper_bound):
     shifted_sequence = sequence.clone()
     mask = (sequence >= lower_bound) & (sequence < upper_bound)
-    prev = torch.roll(sequence, shifts=1)
-    prev_mask = (prev < cc.start_idx['channel'] + 128) | (prev >= cc.start_idx['tempo'])
-    combined_mask = mask & prev_mask
-    shifted_sequence[combined_mask] = torch.clamp(sequence[combined_mask] + rand_int, min=lower_bound, max=upper_bound - 1)
+    selected = sequence[mask]
+    count = selected // cc.config.discretization.pitch
+    remainder = selected % cc.config.discretization.pitch
+    shifted_remainder = torch.clamp(remainder + rand_int, min=0, max=cc.config.discretization.pitch - 1)
+    shifted_values = count * cc.config.discretization.pitch + shifted_remainder
+    shifted_sequence[mask] = shifted_values
     return shifted_sequence
 
 def multiply_sequence(sequence, rand_ints, lower_bound, upper_bound):
@@ -34,7 +36,7 @@ def multiply_sequence(sequence, rand_ints, lower_bound, upper_bound):
 
 def get_metadata_json():
     metadata_path = paths.config.paths.metadata
-    with open(metadata_path, 'r') as f:
+    with open(metadata_path, 'r', encoding='utf-8') as f:
         metadata = json.load(f)
     return metadata
 
@@ -133,7 +135,7 @@ class SequenceDataset(Dataset):
         # Pitch shifting
         note_r_ints = random.randint(-12, 12)
         note_lb = cc.start_idx['pitch']
-        note_ub = cc.start_idx['pitch'] + 128 - 1
+        note_ub = cc.start_idx['pitch'] + cc.config.discretization.pitch * cc.config.discretization.channel - 1
         sequence = shift_sequence_drums(sequence, note_r_ints, note_lb, note_ub)
 
         # Velocity shifting
@@ -178,10 +180,12 @@ class SequenceDataset(Dataset):
 
         # Fetch metadata for the band
         path_parts = Path(file_path).parts
-        band_name = path_parts[-2]
+        # band_name = path_parts[-2]
+        band_name = re.match(r'^([^,]*,[^,]*)', path_parts[-1])[0]
         band_metadata = self.metadata_dict[band_name].to(cc.config.values.device)
 
         # Return sequence and metadata
+        # return sequence[:-1], sequence[1:]
         return sequence[:-1], sequence[1:], band_metadata
 
     def file_prob(self):

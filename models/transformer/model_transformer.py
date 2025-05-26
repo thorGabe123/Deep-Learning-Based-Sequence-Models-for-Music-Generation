@@ -9,7 +9,7 @@ def generate_matrix(n: int, x: int) -> torch.Tensor:
     for i in range(n):
         matrix[i, : ((i // x) + 1) * x] = 1.
         # Set the last 6 columns of each row to 1
-        matrix[i, -6:] = 1.0
+        matrix[i, :6] = 1.0
     
     return matrix
 
@@ -120,8 +120,8 @@ class Transformer(nn.Module):
         x = self.token_embedding_table(idx)  # Shape: (B, T, C)
         x = self.positional_encoding(x)
         metadata_embedding = self.metadata_embedding_table(metadata_idx)
-        x = torch.cat((x, metadata_embedding), dim=-2)
-
+        x = torch.cat((metadata_embedding, x), dim=-2)
+        
         B1, T1, C1 = x.shape
 
         # Transformer blocks
@@ -131,7 +131,7 @@ class Transformer(nn.Module):
 
         # logits = logits.view(B, T, -1)
         logits = logits.view(B1, T1, -1)
-        logits = logits[:, :T, :]
+        logits = logits[:, -T:, :]
         return logits
     
     def get_name(self):

@@ -79,23 +79,21 @@ def make_distributions():
     block_len = cc.config.values.block_len
     device = cc.config.values.device
     vocab_size = cc.vocab_size
-    distributions = torch.ones(6, vocab_size, device=device)
+    distributions = torch.ones(5, vocab_size, device=device)
 
     # For each token index, fill in regions with 1 as per your logic.
     start = [cc.start_idx["pitch"],
              cc.start_idx["dyn"],
              cc.start_idx["length"],
              cc.start_idx["time"],
-             cc.start_idx["channel"],
              cc.start_idx["tempo"]]
     end   = [cc.start_idx["dyn"] - 1,
              cc.start_idx["length"] - 1,
              cc.start_idx["time"] - 1,
-             cc.start_idx["channel"] - 1,
              cc.start_idx["tempo"] - 1,
              cc.vocab_size]   # block_len implies : to the end
 
-    for token in range(6):
+    for token in range(5):
         if token == 0:
             distributions[token, start[0]:end[0]] = 0
         if token == 1:
@@ -106,8 +104,6 @@ def make_distributions():
             distributions[token, start[3]:end[3]] = 0
         if token == 4:
             distributions[token, start[4]:end[4]] = 0
-        if token == 5:
-            distributions[token, start[5]:end[5]] = 0
 
     return distributions
 
@@ -119,7 +115,6 @@ def pick_distributions_by_prev_token(
                 cc.start_idx['dyn'] - 1,
                 cc.start_idx['length'] - 1,
                 cc.start_idx['time'] - 1,
-                cc.start_idx['channel'] - 1,
                 cc.start_idx['tempo'] - 1]
         
     bins = torch.tensor(boundaries, device=input_tokens.device)
@@ -139,7 +134,8 @@ def pick_distributions_by_prev_token(
 
 def filtered_logit(input, output):
     weights = pick_distributions_by_prev_token(input)
-    log_probs = F.log_softmax(output, dim=1)
+    temperature = 1.5
+    log_probs = F.log_softmax(output / temperature, dim=1)
     loss = -log_probs * weights
     return loss
 
@@ -158,8 +154,8 @@ def train(model):
         model.train()  # Set the model to training mode
         total_loss = 0
 
-        for batch_idx, (src, trg, metadata) in enumerate(train_dataloader):
-            output = model(src, metadata)
+        for batch_idx, (src, trg, meta) in enumerate(train_dataloader):
+            output = model(src, meta)
             filtered_output = filtered_logit(src,output)
             filtered_output = filtered_output.reshape(-1, cc.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
             trg = trg.view(-1)  # Flatten the target to [batch_size * seq_len]
@@ -181,8 +177,8 @@ def train(model):
         model.eval()  # Set the model to evaluation mode
         val_loss = 0
         with torch.no_grad():
-            for src, trg, metadata in test_dataloader:
-                output = model(src, metadata)
+            for src, trg, meta in test_dataloader:
+                output = model(src, meta)
                 filtered_output = filtered_logit(src,output)
                 filtered_output = filtered_output.reshape(-1, cc.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
                 trg = trg.view(-1)

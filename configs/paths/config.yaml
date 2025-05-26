@@ -1,8 +1,8 @@
 paths:
   midi_dataset: E:/GitHub/dataset/midi_dataset
-  np_dataset: E:/GitHub/dataset/np_dataset
-  tokenizations: E:/GitHub/dataset/midi_dataset/tokenizations.json
-  metadata: E:/GitHub/dataset/midi_dataset/metadata.json
+  np_dataset: E:/GitHub/dataset/classical piano np/classical piano midi
+  tokenizations: E:/GitHub/dataset/tokenization.json
+  metadata: E:/GitHub/dataset/metadata.json
   pretrained: E:/GitHub/Deep-Learning-Based-Sequence-Models-for-Music-Generation/pretrained
 
 # paths:

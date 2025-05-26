@@ -17,7 +17,7 @@ def dict_to_namespace(d):
 
 def load_tokenizations():
     # metadata_path = "/mnt/e/github/dataset/midi_dataset/tokenizations.json"
-    metadata_path = "E:/GitHub/dataset/midi_dataset/tokenizations.json"
+    metadata_path = "E:/GitHub/dataset/tokenization.json"
     with open(metadata_path, "r") as file:
         return json.load(file)
 
@@ -28,15 +28,30 @@ config = dict_to_namespace(load_config())
 tokenizations = dict_to_namespace(load_tokenizations())
 
 # Compute VOCAB_SIZE dynamically
-vocab_size = sum(vars(config.discretization).values()) + 1
+vocab_size = sum([
+    config.discretization.pitch * config.discretization.channel,
+    config.discretization.dyn,
+    config.discretization.length,
+    config.discretization.time,
+    config.discretization.tempo
+])
 
 metadata_vocab_size = tokenizations.VOCAB_SIZE
 
 # Compute START_IDX dynamically
+offset = 0
 start_idx = {}
-offset = 1  # Start index
 
-for key, value in vars(config.discretization).items():
-    start_idx[key] = offset
-    offset += value  # Move the index forward
+start_idx['pitch'] = offset
+offset += config.discretization.pitch * config.discretization.channel
 
+start_idx['dyn'] = offset
+offset += config.discretization.dyn
+
+start_idx['length'] = offset
+offset += config.discretization.length
+
+start_idx['time'] = offset
+offset += config.discretization.time
+
+start_idx['tempo'] = offset
