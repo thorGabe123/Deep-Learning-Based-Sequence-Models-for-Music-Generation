@@ -13,6 +13,7 @@ from datetime import datetime
 import configs.paths as paths
 import torch.nn.functional as F
 import torch
+import json
 
 def get_actual_vocab_size(type):
     config = cm.config.model_values
@@ -48,11 +49,10 @@ def get_transformer_dict():
 
 def new_model(type):
     if type == "mamba":
-        mamba_dict = get_mamba_dict()
-        model = models.mamba.Mamba(mamba_dict)
+        model = models.mamba.Mamba(512, 12)
     elif type == "xlstm":
-        xlstm_dict = get_xlstm_dict()
-        model = models.xlstm.xLSTM(xlstm_dict)
+        from models.xlstm import xLSTM
+        model = xLSTM()
     elif type == "transformer":
         transformer_dict = get_transformer_dict()
         model = models.transformer.Transformer(transformer_dict)
@@ -81,7 +81,6 @@ def make_distributions():
     vocab_size = cc.vocab_size
     distributions = torch.ones(5, vocab_size, device=device)
 
-    # For each token index, fill in regions with 1 as per your logic.
     start = [cc.start_idx["pitch"],
              cc.start_idx["dyn"],
              cc.start_idx["length"],
@@ -94,16 +93,7 @@ def make_distributions():
              cc.vocab_size]   # block_len implies : to the end
 
     for token in range(5):
-        if token == 0:
-            distributions[token, start[0]:end[0]] = 0
-        if token == 1:
-            distributions[token, start[1]:end[1]] = 0
-        if token == 2:
-            distributions[token, start[2]:end[2]] = 0
-        if token == 3:
-            distributions[token, start[3]:end[3]] = 0
-        if token == 4:
-            distributions[token, start[4]:end[4]] = 0
+        distributions[token, start[token]:end[token]] = 0
 
     return distributions
 
@@ -135,11 +125,11 @@ def pick_distributions_by_prev_token(
 def filtered_logit(input, output):
     weights = pick_distributions_by_prev_token(input)
     temperature = 1.5
-    log_probs = F.log_softmax(output / temperature, dim=1)
+    log_probs = F.log_softmax(output, dim=1)
     loss = -log_probs * weights
     return loss
 
-def train(model):
+def train(model, type_name):
     model.to(cc.config.values.device)
     dataset_path = paths.config.paths.np_dataset
     loader = processing.DatasetLoader(dataset_path)
@@ -147,50 +137,71 @@ def train(model):
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=cc.config.values.learning_rate)
 
+    # Logging setup
+    log_data = []
+    log_file_path = f'training_log_{type_name}.json'
+
     # Training loop
     num_epochs = cc.config.values.epochs
     print('Training started!')
+    log_data.append({'timestamp': str(datetime.now()), 'message': 'Training started!'})
+
     for epoch in range(num_epochs):
-        model.train()  # Set the model to training mode
+        model.train()
         total_loss = 0
 
         for batch_idx, (src, trg, meta) in enumerate(train_dataloader):
             output = model(src, meta)
-            filtered_output = filtered_logit(src,output)
-            filtered_output = filtered_output.reshape(-1, cc.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
-            trg = trg.view(-1)  # Flatten the target to [batch_size * seq_len]
+            filtered_output = filtered_logit(src, output)
+            filtered_output = filtered_output.reshape(-1, cc.vocab_size)
+            trg = trg.view(-1)
 
             loss = criterion(filtered_output, trg)
-            
+
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            
+
             total_loss += loss.item()
 
             if (batch_idx + 1) % cc.config.values.eval_interval == 0:
-                print(f'Epoch [{epoch+1}/{num_epochs}], Step [{batch_idx+1}/{len(train_dataloader)}], Loss: {loss.item():.4f}')
+                msg = f'Epoch [{epoch+1}/{num_epochs}], Step [{batch_idx+1}/{len(train_dataloader)}], Loss: {loss.item():.4f}'
+                print(msg)
+                log_data.append({'timestamp': str(datetime.now()), 'message': msg})
 
         avg_loss = total_loss / len(train_dataloader)
-        print(f'Epoch [{epoch+1}/{num_epochs}], Average Loss: {avg_loss:.4f}')
+        msg = f'Epoch [{epoch+1}/{num_epochs}], Average Loss: {avg_loss:.4f}'
+        print(msg)
+        log_data.append({'timestamp': str(datetime.now()), 'message': msg})
 
-        model.eval()  # Set the model to evaluation mode
+        model.eval()
         val_loss = 0
         with torch.no_grad():
             for src, trg, meta in test_dataloader:
                 output = model(src, meta)
-                filtered_output = filtered_logit(src,output)
-                filtered_output = filtered_output.reshape(-1, cc.vocab_size)  # Flatten the output to [batch_size * seq_len, vocab_size]
+                filtered_output = filtered_logit(src, output)
+                filtered_output = filtered_output.reshape(-1, cc.vocab_size)
                 trg = trg.view(-1)
                 val_loss += criterion(filtered_output, trg).item()
-        
+
         avg_val_loss = val_loss / len(test_dataloader)
-        print(f'Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}')
+        msg = f'Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}'
+        print(msg)
+        log_data.append({'timestamp': str(datetime.now()), 'message': msg})
+
         if (epoch + 1) % cc.config.values.save_interval == 0:
             save_model(model, avg_val_loss)
+            with open(log_file_path, 'w') as f:
+                json.dump(log_data, f, indent=2)
 
     print("Training complete!")
+    log_data.append({'timestamp': str(datetime.now()), 'message': 'Training complete!'})
+
     save_model(model, avg_val_loss)
+
+    # Final log save
+    with open(log_file_path, 'w') as f:
+        json.dump(log_data, f, indent=2)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Training Script")
@@ -212,4 +223,4 @@ if __name__ == "__main__":
         model = load_model(args.model, args.name)
     model.to(cc.config.values.device)
 
-    train(model)
+    train(model, args.name)

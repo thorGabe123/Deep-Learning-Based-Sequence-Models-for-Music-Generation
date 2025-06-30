@@ -142,7 +142,7 @@ def encode(midi_notes):
         time_delta = cc.start_idx['time'] + min(m.time_start - time_prev, cc.config.discretization.time - 1)
         tempo = cc.start_idx['tempo'] + min(m.tempo, cc.config.discretization.tempo - 1)
 
-        token_seq.append(pitch + m.channel * cc.config.discretization.pitch)
+        token_seq.append(pitch)
         token_seq.append(dynamic)
         token_seq.append(length)
         if time_delta_prev != time_delta:

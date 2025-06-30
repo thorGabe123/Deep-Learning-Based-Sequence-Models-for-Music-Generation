@@ -1,1 +1,1 @@
-from .simple_mamba import *
+from .mamba import *

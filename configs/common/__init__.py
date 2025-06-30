@@ -21,7 +21,7 @@ def load_tokenizations():
     with open(metadata_path, "r") as file:
         return json.load(file)
 
-# Load config
+# Load config 
 config = dict_to_namespace(load_config())
 
 # Load config
