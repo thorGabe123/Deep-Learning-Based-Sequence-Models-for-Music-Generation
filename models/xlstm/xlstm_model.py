@@ -47,15 +47,12 @@ class xLSTM(nn.Module):
         self.token_embedding = nn.Embedding(cc.vocab_size, d_model)
         self.metadata_embedding = nn.Embedding(cc.metadata_vocab_size, d_model)
         self.output_layer = nn.Linear(d_model, cc.vocab_size)
-
-        self.layers = nn.Module(
-            xlstm_model = xLSTMBlockStack(cfg)
-        )
-        self.norm = nn.LayerNorm(d_model)
+        self.layers = xLSTMBlockStack(cfg)
+        # self.norm = nn.LayerNorm(d_model)
 
     def forward(self, tokens, meta):
         x = self.token_embedding(tokens)
         x = torch.cat((self.metadata_embedding(meta), x), dim=-2)
         x = self.layers(x)
-        x = self.norm(x)
+        # x = self.norm(x)
         return self.output_layer(x)[:,6:]

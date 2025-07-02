@@ -165,14 +165,12 @@ def train(model, type_name):
             total_loss += loss.item()
 
             if (batch_idx + 1) % cc.config.values.eval_interval == 0:
-                msg = f'Epoch [{epoch+1}/{num_epochs}], Step [{batch_idx+1}/{len(train_dataloader)}], Loss: {loss.item():.4f}'
-                print(msg)
-                log_data.append({'timestamp': str(datetime.now()), 'message': msg})
+                msg = f'{loss.item():.4f}'
+                log_data.append({'step': len(train_dataloader) * epoch + batch_idx + 1, 'loss': msg})
 
         avg_loss = total_loss / len(train_dataloader)
         msg = f'Epoch [{epoch+1}/{num_epochs}], Average Loss: {avg_loss:.4f}'
         print(msg)
-        log_data.append({'timestamp': str(datetime.now()), 'message': msg})
 
         model.eval()
         val_loss = 0
@@ -185,9 +183,6 @@ def train(model, type_name):
                 val_loss += criterion(filtered_output, trg).item()
 
         avg_val_loss = val_loss / len(test_dataloader)
-        msg = f'Epoch [{epoch+1}/{num_epochs}], Validation Loss: {avg_val_loss:.4f}'
-        print(msg)
-        log_data.append({'timestamp': str(datetime.now()), 'message': msg})
 
         if (epoch + 1) % cc.config.values.save_interval == 0:
             save_model(model, avg_val_loss)
@@ -223,4 +218,4 @@ if __name__ == "__main__":
         model = load_model(args.model, args.name)
     model.to(cc.config.values.device)
 
-    train(model, args.name)
+    train(model, args.model)
