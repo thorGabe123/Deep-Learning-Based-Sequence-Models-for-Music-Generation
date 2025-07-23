@@ -1,0 +1,527 @@
+{
+  "Albeniz": {
+    "successrate": 0.20000000298023224,
+    "num_files": 20
+  },
+  "Alkan": {
+    "successrate": 0.5,
+    "num_files": 10
+  },
+  "Ambroise": {
+    "successrate": 0.0,
+    "num_files": 2
+  },
+  "Arensky": {
+    "successrate": 0.5,
+    "num_files": 2
+  },
+  "Arndt": {
+    "num_files": 1
+  },
+  "Bacewitz": {
+    "successrate": 1.0,
+    "num_files": 4
+  },
+  "Bach": {
+    "successrate": 0.6335963606834412,
+    "num_files": 887
+  },
+  "Barber": {
+    "successrate": 0.0,
+    "num_files": 4
+  },
+  "Bartelet": {
+    "num_files": 1
+  },
+  "Bartok": {
+    "successrate": 0.0,
+    "num_files": 15
+  },
+  "Becker": {
+    "num_files": 1
+  },
+  "Beethoven": {
+    "successrate": 0.7560975551605225,
+    "num_files": 246
+  },
+  "Bellini": {
+    "successrate": 0.0,
+    "num_files": 3
+  },
+  "Berlin": {
+    "successrate": 0.6666666865348816,
+    "num_files": 3
+  },
+  "Bernstein": {
+    "num_files": 1
+  },
+  "Bizet": {
+    "successrate": 0.6000000238418579,
+    "num_files": 5
+  },
+  "Borodin": {
+    "successrate": 0.0,
+    "num_files": 2
+  },
+  "Botsford": {
+    "num_files": 1
+  },
+  "Brahms": {
+    "successrate": 0.4166666865348816,
+    "num_files": 60
+  },
+  "Burgmuller": {
+    "successrate": 0.1320754736661911,
+    "num_files": 53
+  },
+  "Busoni": {
+    "successrate": 0.4444444477558136,
+    "num_files": 9
+  },
+  "Busser": {
+    "num_files": 1
+  },
+  "Buxehude": {
+    "successrate": 0.25,
+    "num_files": 12
+  },
+  "Chabrier": {
+    "successrate": 0.5,
+    "num_files": 8
+  },
+  "Chaminade": {
+    "successrate": 0.1666666716337204,
+    "num_files": 12
+  },
+  "Chasins": {
+    "successrate": 0.0,
+    "num_files": 2
+  },
+  "Chopin": {
+    "successrate": 0.5111110806465149,
+    "num_files": 135
+  },
+  "Clementi": {
+    "successrate": 0.5081967115402222,
+    "num_files": 61
+  },
+  "Coates": {
+    "successrate": 0.5714285969734192,
+    "num_files": 7
+  },
+  "Coleridge": {
+    "successrate": 0.0,
+    "num_files": 4
+  },
+  "Cons": {
+    "successrate": 0.0,
+    "num_files": 2
+  },
+  "Copland": {
+    "successrate": 0.6666666865348816,
+    "num_files": 6
+  },
+  "Couperin": {
+    "num_files": 1
+  },
+  "Cpe_bach": {
+    "successrate": 0.0,
+    "num_files": 2
+  },
+  "Cramer": {
+    "successrate": 0.0,
+    "num_files": 12
+  },
+  "Czerny": {
+    "successrate": 0.5,
+    "num_files": 26
+  },
+  "Czibulka": {
+    "num_files": 1
+  },
+  "Debussy": {
+    "successrate": 0.0,
+    "num_files": 17
+  },
+  "Diabelli": {
+    "successrate": 0.3636363744735718,
+    "num_files": 11
+  },
+  "Durand_e": {
+    "num_files": 1
+  },
+  "Durand_ma": {
+    "num_files": 1
+  },
+  "Dussek": {
+    "successrate": 0.3333333432674408,
+    "num_files": 3
+  },
+  "Dvorak": {
+    "successrate": 0.46666669845581055,
+    "num_files": 15
+  },
+  "Faure": {
+    "successrate": 0.625,
+    "num_files": 16
+  },
+  "Field": {
+    "successrate": 0.0,
+    "num_files": 4
+  },
+  "Finck": {
+    "num_files": 1
+  },
+  "Flotow": {
+    "num_files": 1
+  },
+  "Franck": {
+    "successrate": 0.5,
+    "num_files": 2
+  },
+  "Frescobaldi": {
+    "successrate": 1.0,
+    "num_files": 2
+  },
+  "Friedman": {
+    "num_files": 1
+  },
+  "Fucick": {
+    "successrate": 0.5,
+    "num_files": 2
+  },
+  "Ganne": {
+    "num_files": 1
+  },
+  "German": {
+    "successrate": 0.6774193048477173,
+    "num_files": 31
+  },
+  "Gershwin": {
+    "successrate": 0.5,
+    "num_files": 12
+  },
+  "Ginastera": {
+    "successrate": 0.30000001192092896,
+    "num_files": 10
+  },
+  "Gottschalk": {
+    "num_files": 1
+  },
+  "Grainger": {
+    "successrate": 0.0,
+    "num_files": 3
+  },
+  "Grieg": {
+    "successrate": 0.6000000238418579,
+    "num_files": 15
+  },
+  "Griffes": {
+    "successrate": 0.3333333432674408,
+    "num_files": 6
+  },
+  "Haendel": {
+    "successrate": 0.8860103487968445,
+    "num_files": 193
+  },
+  "Handel": {
+    "num_files": 1
+  },
+  "Haydn": {
+    "successrate": 0.8461538553237915,
+    "num_files": 91
+  },
+  "Heidrich": {
+    "successrate": 1.0,
+    "num_files": 2
+  },
+  "Heller": {
+    "successrate": 0.0,
+    "num_files": 24
+  },
+  "Hemery": {
+    "num_files": 1
+  },
+  "Herold": {
+    "num_files": 1
+  },
+  "Hiller": {
+    "successrate": 0.0,
+    "num_files": 2
+  },
+  "Holst": {
+    "successrate": 0.0,
+    "num_files": 12
+  },
+  "Holst_m": {
+    "num_files": 1
+  },
+  "Hummel": {
+    "successrate": 0.75,
+    "num_files": 12
+  },
+  "Ivanovici": {
+    "num_files": 1
+  },
+  "Jakobowski": {
+    "successrate": 0.5,
+    "num_files": 2
+  },
+  "Jensen": {
+    "successrate": 0.0,
+    "num_files": 10
+  },
+  "Joplin": {
+    "successrate": 0.5833333730697632,
+    "num_files": 12
+  },
+  "Komzak": {
+    "num_files": 1
+  },
+  "Kuhlau": {
+    "successrate": 0.1111111119389534,
+    "num_files": 9
+  },
+  "Lange": {
+    "successrate": 0.0,
+    "num_files": 6
+  },
+  "Laurent": {
+    "num_files": 1
+  },
+  "Lavallee": {
+    "num_files": 1
+  },
+  "Lecuona": {
+    "successrate": 0.0,
+    "num_files": 2
+  },
+  "Lemire": {
+    "successrate": 0.27272728085517883,
+    "num_files": 11
+  },
+  "Le_thiere": {
+    "successrate": 0.0,
+    "num_files": 2
+  },
+  "Liszt": {
+    "successrate": 0.4642857313156128,
+    "num_files": 28
+  },
+  "Lyssenko": {
+    "num_files": 1
+  },
+  "Macbeth": {
+    "num_files": 1
+  },
+  "Maccunn": {
+    "num_files": 1
+  },
+  "Massenet": {
+    "num_files": 1
+  },
+  "Mehul": {
+    "num_files": 1
+  },
+  "Mendelsonn": {
+    "successrate": 0.5471698045730591,
+    "num_files": 53
+  },
+  "Mendelssohn": {
+    "successrate": 0.30000001192092896,
+    "num_files": 10
+  },
+  "Meyerbeer": {
+    "successrate": 0.0,
+    "num_files": 2
+  },
+  "Morel": {
+    "num_files": 1
+  },
+  "Moszkowski": {
+    "successrate": 0.0,
+    "num_files": 4
+  },
+  "Mozart": {
+    "successrate": 0.7637795209884644,
+    "num_files": 254
+  },
+  "Mussorgski": {
+    "successrate": 0.5,
+    "num_files": 2
+  },
+  "Nicolai": {
+    "num_files": 1
+  },
+  "Pachelbel": {
+    "successrate": 0.0,
+    "num_files": 8
+  },
+  "Paderewski": {
+    "num_files": 1
+  },
+  "Paganini": {
+    "successrate": 0.9090909361839294,
+    "num_files": 22
+  },
+  "Paradisi": {
+    "num_files": 1
+  },
+  "Peterson": {
+    "successrate": 0.75,
+    "num_files": 4
+  },
+  "Pollen": {
+    "num_files": 1
+  },
+  "Poulenc": {
+    "successrate": 0.6153846383094788,
+    "num_files": 13
+  },
+  "Pridhan": {
+    "num_files": 1
+  },
+  "Prokofiev": {
+    "successrate": 0.25,
+    "num_files": 4
+  },
+  "Rachmaninov": {
+    "successrate": 0.7352941036224365,
+    "num_files": 34
+  },
+  "Raff": {
+    "num_files": 1
+  },
+  "Ravel": {
+    "successrate": 0.2142857313156128,
+    "num_files": 14
+  },
+  "Reger": {
+    "successrate": 0.3333333432674408,
+    "num_files": 3
+  },
+  "Reinecke": {
+    "successrate": 0.6666666865348816,
+    "num_files": 3
+  },
+  "Resch": {
+    "num_files": 1
+  },
+  "Rimsky": {
+    "successrate": 0.0,
+    "num_files": 4
+  },
+  "Rossini": {
+    "successrate": 0.0,
+    "num_files": 2
+  },
+  "Rothchild": {
+    "successrate": 0.8333333730697632,
+    "num_files": 12
+  },
+  "Saint": {
+    "successrate": 0.2857142984867096,
+    "num_files": 7
+  },
+  "Sarasate": {
+    "num_files": 1
+  },
+  "Satie": {
+    "successrate": 0.1428571492433548,
+    "num_files": 21
+  },
+  "Scarlatti": {
+    "successrate": 0.9682080745697021,
+    "num_files": 692
+  },
+  "Schubert": {
+    "successrate": 0.6766917705535889,
+    "num_files": 133
+  },
+  "Schumann": {
+    "successrate": 0.37288135290145874,
+    "num_files": 59
+  },
+  "Shostakovich": {
+    "successrate": 0.1111111119389534,
+    "num_files": 9
+  },
+  "Sibelius": {
+    "successrate": 0.0,
+    "num_files": 7
+  },
+  "Sinding": {
+    "num_files": 1
+  },
+  "Skriabin": {
+    "successrate": 0.09677419066429138,
+    "num_files": 31
+  },
+  "Straus": {
+    "successrate": 0.5,
+    "num_files": 2
+  },
+  "Strauss_j": {
+    "successrate": 0.0,
+    "num_files": 4
+  },
+  "Stravinsky": {
+    "successrate": 0.5833333730697632,
+    "num_files": 12
+  },
+  "Sudds": {
+    "num_files": 1
+  },
+  "Sullivan": {
+    "successrate": 1.0,
+    "num_files": 2
+  },
+  "Suppe": {
+    "num_files": 1
+  },
+  "Swinstead": {
+    "num_files": 1
+  },
+  "Tarrega": {
+    "num_files": 1
+  },
+  "Taube": {
+    "num_files": 1
+  },
+  "Tchaikovsky": {
+    "successrate": 0.875,
+    "num_files": 16
+  },
+  "Tchakoff": {
+    "num_files": 1
+  },
+  "Thomas": {
+    "num_files": 1
+  },
+  "Unknown_artist": {
+    "successrate": 0.7951977252960205,
+    "num_files": 708
+  },
+  "Vaughan": {
+    "successrate": 0.0,
+    "num_files": 13
+  },
+  "Verdi": {
+    "num_files": 1
+  },
+  "Vivaldi": {
+    "successrate": 0.9339622855186462,
+    "num_files": 106
+  },
+  "Wagner": {
+    "successrate": 0.5,
+    "num_files": 4
+  },
+  "Wolf": {
+    "successrate": 0.5,
+    "num_files": 2
+  },
+  ".ipynb_checkpoints": {
+    "num_files": 0
+  }
+}

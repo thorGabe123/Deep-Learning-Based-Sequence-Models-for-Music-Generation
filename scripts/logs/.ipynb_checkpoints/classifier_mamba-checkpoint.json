@@ -1,0 +1,255 @@
+{
+  "Sibelius": {},
+  "Borodin": {
+    "successrate": 0.0
+  },
+  "Alkan": {
+    "successrate": 0.0
+  },
+  "Field": {
+    "successrate": 0.0
+  },
+  "Bacewitz": {
+    "successrate": 0.6000000238418579
+  },
+  "Lecuona": {
+    "successrate": 0.0
+  },
+  "Ambroise": {
+    "successrate": 0.0
+  },
+  "Cons": {
+    "successrate": 0.0
+  },
+  "Reger": {
+    "successrate": 0.0
+  },
+  "Dussek": {
+    "successrate": 0.0
+  },
+  "Frescobaldi": {
+    "successrate": 0.4000000059604645
+  },
+  "Ginastera": {
+    "successrate": 0.20000000298023224
+  },
+  "Prokofiev": {
+    "successrate": 0.0
+  },
+  "Meyerbeer": {
+    "successrate": 0.0
+  },
+  "Satie": {
+    "successrate": 0.0
+  },
+  "Fucick": {
+    "successrate": 0.0
+  },
+  "German": {
+    "successrate": 0.0
+  },
+  "Heller": {
+    "successrate": 0.0
+  },
+  "Copland": {
+    "successrate": 0.20000000298023224
+  },
+  "Shostakovich": {
+    "successrate": 0.0
+  },
+  "Jensen": {
+    "successrate": 0.0
+  },
+  "Grieg": {
+    "successrate": 0.0
+  },
+  "Barber": {
+    "successrate": 0.0
+  },
+  "Chabrier": {
+    "successrate": 0.0
+  },
+  "Jakobowski": {
+    "successrate": 0.0
+  },
+  "Arensky": {
+    "successrate": 0.0
+  },
+  "Rothchild": {
+    "successrate": 0.4000000059604645
+  },
+  "Holst": {
+    "successrate": 0.0
+  },
+  "Paganini": {
+    "successrate": 0.0
+  },
+  "Chopin": {
+    "successrate": 0.0
+  },
+  "Berlin": {
+    "successrate": 0.0
+  },
+  "Coleridge": {
+    "successrate": 0.0
+  },
+  "Lange": {
+    "successrate": 0.0
+  },
+  "Heidrich": {
+    "successrate": 0.4000000059604645
+  },
+  "Schumann": {
+    "successrate": 0.20000000298023224
+  },
+  "Clementi": {
+    "successrate": 0.0
+  },
+  "Ravel": {
+    "successrate": 0.0
+  },
+  "Peterson": {
+    "successrate": 0.800000011920929
+  },
+  "Mussorgski": {
+    "successrate": 0.0
+  },
+  "Liszt": {
+    "successrate": 0.20000000298023224
+  },
+  "Diabelli": {
+    "successrate": 0.0
+  },
+  "Busoni": {
+    "successrate": 0.4000000059604645
+  },
+  "Rimsky": {
+    "successrate": 0.0
+  },
+  "Bartok": {
+    "successrate": 0.0
+  },
+  "Beethoven": {
+    "successrate": 0.800000011920929
+  },
+  "Joplin": {
+    "successrate": 0.0
+  },
+  "Reinecke": {
+    "successrate": 0.20000000298023224
+  },
+  "Griffes": {
+    "successrate": 0.0
+  },
+  "Pachelbel": {
+    "successrate": 0.0
+  },
+  "Debussy": {
+    "successrate": 0.0
+  },
+  "Bach": {
+    "successrate": 0.800000011920929
+  },
+  "Czerny": {
+    "successrate": 0.20000000298023224
+  },
+  "Haendel": {
+    "successrate": 0.800000011920929
+  },
+  "Chaminade": {
+    "successrate": 0.20000000298023224
+  },
+  "Albeniz": {
+    "successrate": 0.0
+  },
+  "Coates": {
+    "successrate": 0.6000000238418579
+  },
+  "Scarlatti": {
+    "successrate": 1.0
+  },
+  "Schubert": {
+    "successrate": 0.6000000238418579
+  },
+  "Gershwin": {
+    "successrate": 0.0
+  },
+  "Haydn": {
+    "successrate": 0.4000000059604645
+  },
+  "Saint": {
+    "successrate": 0.6000000238418579
+  },
+  "Rossini": {
+    "successrate": 0.0
+  },
+  "Franck": {
+    "successrate": 0.4000000059604645
+  },
+  "Bellini": {
+    "successrate": 0.0
+  },
+  "Mendelsonn": {
+    "successrate": 0.20000000298023224
+  },
+  "Poulenc": {
+    "successrate": 0.0
+  },
+  "Kuhlau": {
+    "successrate": 0.0
+  },
+  "Hummel": {
+    "successrate": 0.20000000298023224
+  },
+  "Grainger": {
+    "successrate": 0.0
+  },
+  "Dvorak": {
+    "successrate": 0.4000000059604645
+  },
+  "Lemire": {
+    "successrate": 0.0
+  },
+  "Faure": {
+    "successrate": 0.0
+  },
+  "Brahms": {
+    "successrate": 0.20000000298023224
+  },
+  "Cramer": {
+    "successrate": 0.0
+  },
+  "Le_thiere": {
+    "successrate": 0.0
+  },
+  "Chasins": {
+    "successrate": 0.0
+  },
+  "Bizet": {
+    "successrate": 0.20000000298023224
+  },
+  "Cpe_bach": {
+    "successrate": 0.0
+  },
+  "Mozart": {
+    "successrate": 0.6000000238418579
+  },
+  "Buxehude": {
+    "successrate": 0.0
+  },
+  "Burgmuller": {
+    "successrate": 0.0
+  },
+  "Mendelssohn": {
+    "successrate": 0.0
+  },
+  "Hiller": {
+    "successrate": 0.0
+  },
+  "Moszkowski": {
+    "successrate": 0.0
+  },
+  "Rachmaninov": {
+    "successrate": 0.0
+  }
+}

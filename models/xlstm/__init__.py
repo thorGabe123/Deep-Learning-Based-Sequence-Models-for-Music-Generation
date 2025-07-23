@@ -1,1 +1,1 @@
-from .model_xlstm import *
+from .xlstm_model import *

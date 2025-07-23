@@ -1,5 +1,5 @@
 model_values:
-  n_embd: 256
+  n_embd: 1024
   n_heads: 8
   n_layer: 8
-  feedforward_dim: 512
+  feedforward_dim: 2048
