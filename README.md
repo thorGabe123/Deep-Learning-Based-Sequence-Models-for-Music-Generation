@@ -77,7 +77,7 @@ The models
 ├── scripts               # Folder containing testing scripts, visualization scipts, midi generating scripts, etc.
 ├── train.py              # Training script for models
 ├── train_classifier.py   # Training script for classifier
-└── MIDI                  # All variations used for the qualitative testing
+└── samples                  # Audio of composer conditioned music used for the qualitative testing
     ├── Beethoven
     ├── Brahms
     ├── Chopin
