@@ -100,6 +100,8 @@ python generate_midi_combined.py --length 2000 --mamba True --composers "Mozart,
 
 ```
 
+## Datasets
+
 Our project utilizes the following MIDI music datasets:
 
 - [**MIDI Classical Music** (HuggingFace)](https://huggingface.co/datasets/drengskapur/midi-classical-music):  
