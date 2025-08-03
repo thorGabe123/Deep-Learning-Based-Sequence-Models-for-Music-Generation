@@ -154,12 +154,10 @@ class Transformer(nn.Module):
         super().__init__()
         self.vocab_size = params.vocab_size
         self.metadata_vocab_size = params.metadata_vocab_size
-        # Embedding layers for tokens and positions
         self.token_embedding_table = nn.Embedding(params.vocab_size, params.n_embd)
         self.metadata_embedding_table = nn.Embedding(params.metadata_vocab_size, params.n_embd)
         # self.positional_encoding = PositionalEncoding(params.n_embd, params.block_len, params.device)
 
-        # Transformer blocks
         self.blocks = nn.Sequential(*[Block(params.n_embd, params.n_heads, params.block_len + 6, params.dropout) for _ in range(params.n_layer)])
         self.ln_f = nn.LayerNorm(params.n_embd)  # final layer norm
         self.lm_head = nn.Linear(params.n_embd, params.vocab_size)
@@ -167,7 +165,6 @@ class Transformer(nn.Module):
     def forward(self, idx, metadata_idx, targets=None):
         B, T = idx.shape
 
-        # Embedding lookups for tokens and positions
         x = self.token_embedding_table(idx)  # Shape: (B, T, C)
         # x = self.positional_encoding(x)
         metadata_embedding = self.metadata_embedding_table(metadata_idx)
@@ -180,7 +177,6 @@ class Transformer(nn.Module):
         x = self.ln_f(x)    # Shape: (B, T, C)
         logits = self.lm_head(x)  # Shape: (B, T, vocab_size)
 
-        # logits = logits.view(B, T, -1)
         logits = logits.view(B1, T1, -1)
         logits = logits[:, -T:, :]
         return logits

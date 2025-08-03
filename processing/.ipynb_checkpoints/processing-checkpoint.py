@@ -50,7 +50,7 @@ def preprocess_midi_files(midi_folder, preprocess_folder):
 
         try:
             midi_notes = extract_midi(path)
-            if len(midi_notes) == 0:
+            if len(midi_notes) < 200:
                 continue
             token_seq = encode(midi_notes)
             np.save(new_path + '.npy', token_seq)

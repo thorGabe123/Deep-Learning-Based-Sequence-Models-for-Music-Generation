@@ -10,6 +10,7 @@ import argparse
 import os
 from collections import Counter
 from generate import generate
+import random
 
 
 if __name__ == "__main__":
@@ -20,10 +21,13 @@ if __name__ == "__main__":
     parser.add_argument("--transformer", type=bool, default=False)
     parser.add_argument("--retain", type=bool, default=False)
     parser.add_argument("--reverse", type=bool, default=False)
+    parser.add_argument("--randomize", type=bool, default=False)
     parser.add_argument("--no_metadata", type=bool, default=False)
-    parser.add_argument("--data_root", type=str, default="/home/s203861/midi-classical-music/np_data/data")
+    parser.add_argument("--removed_metadata", type=bool, default=False)
+    parser.add_argument("--data_root", type=str, default=f"{paths.config.paths.np_dataset}/data")
     parser.add_argument("--output_path", type=str, default="/scratch/s203861/output")
     parser.add_argument("--combined_path", type=bool, default=False)
+    parser.add_argument("--composers", type=str, default="")
     args = parser.parse_args()
 
     data_root = args.data_root
@@ -31,6 +35,10 @@ if __name__ == "__main__":
     band_folders = [d for d in os.listdir(data_root) if os.path.isdir(os.path.join(data_root, d))]
     if args.reverse:
         band_folders = sorted(band_folders, reverse=True)
+    if args.randomize:
+        band_folders = random.shuffle(band_folders)
+    if args.composers:
+        band_folders = [item.strip() for item in args.composers.split(',')]
 
     pretrained_path = paths.config.paths.pretrained
     if args.mamba:
@@ -61,14 +69,15 @@ if __name__ == "__main__":
             mamba_output_dir = os.path.join(f"{output_path}/mamba_no_meta", band)
             xlstm_output_dir = os.path.join(f"{output_path}/xlstm_no_meta", band)
             transformer_output_dir = os.path.join(f"{output_path}/transformer_no_meta", band)
+        elif args.removed_metadata:
+            mamba_output_dir = os.path.join(f"{output_path}/mamba_removed_meta", band)
+            xlstm_output_dir = os.path.join(f"{output_path}/xlstm_removed_meta", band)
+            transformer_output_dir = os.path.join(f"{output_path}/transformer_removed_meta", band)
         else:
             mamba_output_dir = os.path.join(f"{output_path}/mamba", band)
             xlstm_output_dir = os.path.join(f"{output_path}/xlstm", band)
             transformer_output_dir = os.path.join(f"{output_path}/transformer", band)
             combined_output_dir = os.path.join(f"{output_path}/combined", band)
-        os.makedirs(mamba_output_dir, exist_ok=True)
-        os.makedirs(xlstm_output_dir, exist_ok=True)
-        os.makedirs(transformer_output_dir, exist_ok=True)
     
         B = cc.config.values.batch_size
         
@@ -87,6 +96,17 @@ if __name__ == "__main__":
         print(os.path.join(data_root, band))
         print(f"Processing band: {band}")
         generated_files = 0
+        try:
+            loader = processing.DatasetLoader(os.path.join(data_root, band))
+            test_dataloader = loader.get_dataloader_full()
+            if args.mamba:
+                os.makedirs(mamba_output_dir, exist_ok=True)
+            if args.xlstm:
+                os.makedirs(xlstm_output_dir, exist_ok=True)
+            if args.transformer:
+                os.makedirs(transformer_output_dir, exist_ok=True)
+        except:
+            continue
         while generated_files < B:
             loader = processing.DatasetLoader(os.path.join(data_root, band))
             test_dataloader = loader.get_dataloader_full()
@@ -129,11 +149,11 @@ if __name__ == "__main__":
                         decoded_notes_data = processing.decode(src[i])
                 else:
                     if args.mamba:
-                        decoded_notes_mamba = processing.decode(mamba_seq[i][-args.length:])
+                        decoded_notes_mamba = processing.decode(mamba_seq[i][-args.length - 300:])
                     if args.xlstm:
-                        decoded_notes_xlstm = processing.decode(xlstm_seq[i][-args.length:])
+                        decoded_notes_xlstm = processing.decode(xlstm_seq[i][-args.length - 300:])
                     if args.transformer:
-                        decoded_notes_transformer = processing.decode(transformer_seq[i][-args.length:])
+                        decoded_notes_transformer = processing.decode(transformer_seq[i][-args.length - 300:])
                 if args.combined_path:
                     os.makedirs(combined_output_dir, exist_ok=True)
                     processing.note_to_midi(

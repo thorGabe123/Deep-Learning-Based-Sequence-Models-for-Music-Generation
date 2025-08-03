@@ -15,7 +15,7 @@ import torch.nn.functional as F
 import torch
 import json
 
-length_tensor = torch.linspace(1, 3, steps=499).to("cuda")
+length_tensor = torch.linspace(1, 3, steps=cc.config.discretization.length - 1).to("cuda")
 
 def get_actual_vocab_size(type):
     config = cm.config.model_values
@@ -121,17 +121,12 @@ def pick_distributions_by_prev_token(
                 cc.start_idx['tempo'] - 1]
         
     bins = torch.tensor(boundaries, device=input_tokens.device)
-        # Each token is assigned to a bucket 0..len(boundaries)
-        # For example, with bins=[10,20,30]: 
-        #   token <10 → 0, 10<=token<20 → 1, 20<=token<30 → 2, 30<=token → 3
     buckets = torch.bucketize(input_tokens, bins, right=False)
     distributions = make_distributions()
 
-    # Ensure buckets is long (int64) and on the same device as distributions
     buckets = buckets.long().to(distributions.device)
 
-    # Now use advanced indexing to get values
-    output = distributions[buckets]  # shape: [6, 963]
+    output = distributions[buckets]
 
     return output
 
@@ -150,11 +145,9 @@ def train(model, type_name):
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=cc.config.values.learning_rate)
 
-    # Logging setup
     log_data = []
     log_file_path = f'/scratch/s203861/logs/training_log_{type_name}.json'
 
-    # Training loop
     num_epochs = cc.config.values.epochs
     print('Training started!')
     log_data.append({'timestamp': str(datetime.now()), 'message': 'Training started!'})
@@ -210,7 +203,6 @@ def train(model, type_name):
     finally:
         print("Saving model before exit...")
         save_model(model, avg_val_loss if avg_val_loss is not None else 0.0)
-        # Save logs 
         with open(log_file_path, 'w') as f:
             json.dump(log_data, f, indent=2)
         print("Model saved. Exiting.")
@@ -227,15 +219,13 @@ def train(model, type_name):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Training Script")
 
-    # Add command-line arguments
     parser.add_argument("--model",
                     type=str,
                     default="mamba",
-                    choices=["mamba", "xlstm", "transformer"],  # List of allowed choices
+                    choices=["mamba", "xlstm", "transformer"], 
                     help="Model name (choices: mamba, xlstm, transformer)")
     parser.add_argument("--name", type=str, help="Name of the model to train, e.g. mamba1000.pth")
 
-    # Parse arguments
     args = parser.parse_args()
     
     if args.name is None:

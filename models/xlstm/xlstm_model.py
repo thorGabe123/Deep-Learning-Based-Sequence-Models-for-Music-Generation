@@ -34,7 +34,8 @@ cfg = xlstm.xLSTMBlockStackConfig(
             act_fn="gelu",
         ),
     ),
-    context_length=cc.config.values.block_len + 6,
+    # context_length=cc.config.values.block_len,
+    context_length=cc.config.values.block_len+6,
     embedding_dim=1024,
     num_blocks=11,
     slstm_at=[1, 4, 7, 10],
@@ -48,11 +49,9 @@ class xLSTM(nn.Module):
         self.metadata_embedding = nn.Embedding(cc.metadata_vocab_size, d_model)
         self.output_layer = nn.Linear(d_model, cc.vocab_size)
         self.layers = xLSTMBlockStack(cfg)
-        # self.norm = nn.LayerNorm(d_model)
 
     def forward(self, tokens, meta):
         x = self.token_embedding(tokens)
         x = torch.cat((self.metadata_embedding(meta), x), dim=-2)
         x = self.layers(x)
-        # x = self.norm(x)
         return self.output_layer(x)[:,6:]

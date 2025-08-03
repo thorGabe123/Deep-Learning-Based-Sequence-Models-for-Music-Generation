@@ -76,8 +76,9 @@ The models
 ├── requirements.txt      # Python dependencies
 ├── scripts               # Folder containing testing scripts, visualization scipts, midi generating scripts, etc.
 ├── train.py              # Training script for models
+├── train_parallel.py     # Training script for multiple GPU training
 ├── train_classifier.py   # Training script for classifier
-└── samples                  # Audio of composer conditioned music used for the qualitative testing
+└── samples               # Audio of composer conditioned music used for the qualitative testing
     ├── Beethoven
     ├── Brahms
     ├── Chopin
@@ -85,6 +86,7 @@ The models
     ├── Liszt
     ├── Mozart
     ├── Vivaldi
-    └── Wagner
+    ├── Wagner
+    └── Extra             # Audio or midi samples not used during testing 
 
 ```

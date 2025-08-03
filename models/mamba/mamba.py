@@ -2,6 +2,8 @@ import torch.nn as nn
 import configs.common as cc
 import torch
 from mamba_ssm import Mamba2
+from mamba_ssm.utils.generation import InferenceParams
+
 
 class Mamba(nn.Module):
     def __init__(self, d_model=1024, n_layers=10):
@@ -17,13 +19,16 @@ class Mamba(nn.Module):
                 d_state=64,  # SSM state expansion factor, typically 64 or 128
                 d_conv=4,    # Local convolution width
                 expand=2,    # Block expansion factor
-            ).to("cuda") for _ in range(n_layers)
+                layer_idx=i  # Required for recurrent generation
+            ).to("cuda") for i in range(n_layers)
         ])
         self.norm = nn.LayerNorm(d_model)
 
     def forward(self, tokens, meta):
+        
         x = self.token_embedding(tokens)
         x = torch.cat((self.metadata_embedding(meta), x), dim=-2)
+
         for layer in self.layers:
             x = layer(x)
         x = self.norm(x)

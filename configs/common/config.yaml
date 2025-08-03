@@ -1,29 +1,30 @@
 discretization:
   pitch: 128
   dyn: 128
-  length: 500
-  time: 500
+  length: 512
+  time: 512
   channel: 129 # 128 instruments + 1 drum channels
   tempo: 250
 
 resolution:
-  bar_res: 24
+  bar_res: 64
 
 values:
-  block_len: 1024 # 1024, 2048, 3000
+  block_len: 2048 # 1024, 2048, 3072
   device: 'cuda'
   metadata_dims: {"composer": 8}
   dropout: 0.01
-  epochs: 1000
+  epochs: 10000
   eval_interval: 10
   save_interval: 10
   learning_rate: 0.00005
   eval_iters: 200
-  test_ratio: 0.5
-  batch_size: 5
-  augmentation: True
+  test_ratio: 0.2
+  batch_size: 2
+  augmentation: False
   end_of_seq: False
   start_of_seq: False
+  parallel: False
 
 models:
   # No Finetuning
@@ -33,11 +34,22 @@ models:
   # transformer: "/scratch/s203861/pretrained/transformer/loss_0.96_time_2025-07-18-09-43-23.pth"
 
   # Finedtuned
-  xlstm: "/scratch/s203861/pretrained/xlstm/loss_1.05_time_2025-07-19-06-26-36.pth"
-  mamba: "/scratch/s203861/pretrained/mamba/loss_1.11_time_2025-07-19-09-30-43.pth"
-  transformer: "/scratch/s203861/pretrained/transformer/loss_0.96_time_2025-07-18-09-43-23.pth"
+  # xlstm: "/scratch/s203861/pretrained/xlstm/loss_1.00_time_2025-07-18-18-37-53.pth"
+  # mamba: "/scratch/s203861/pretrained/mamba/loss_1.11_time_2025-07-19-09-30-43.pth"
+  # transformer: "/scratch/s203861/pretrained/transformer/loss_0.96_time_2025-07-18-09-43-23.pth"
 
   # New Metadata
-  # xlstm: "/scratch/s203861/pretrained/xlstm/loss_1.20_time_2025-07-23-07-49-09.pth"
-  # mamba: "/scratch/s203861/pretrained/mamba/loss_1.29_time_2025-07-23-08-28-29.pth"
-  # transformer: "/scratch/s203861/pretrained/transformer/loss_1.19_time_2025-07-23-07-36-09.pth"
+  xlstm: "/scratch/s203861/pretrained/xlstm/loss_1.09_time_2025-07-25-16-48-18.pth"
+  # mamba: "/scratch/s203861/pretrained/mamba/loss_1.18_time_2025-07-25-20-03-51.pth"
+  transformer: "/scratch/s203861/pretrained/transformer/loss_1.19_time_2025-07-23-07-36-09.pth"
+
+  # Removed Metadata
+  # xlstm: "/scratch/s203861/pretrained/xlstm/loss_1.03_time_2025-07-29-17-23-38.pth"
+  # mamba: "/scratch/s203861/pretrained/mamba/loss_1.04_time_2025-07-29-19-05-25.pth"
+  # transformer: "/scratch/s203861/pretrained/transformer/loss_1.08_time_2025-07-29-16-40-54.pth"
+
+  # New Encoding 1024
+  # mamba: "/scratch/s203861/pretrained/mamba/loss_1.31_time_2025-08-01-22-51-15.pth"
+
+  # New Encoding 2048
+  mamba: "/scratch/s203861/pretrained/mamba/loss_1.94_time_2025-08-03-11-25-30.pth"

@@ -19,8 +19,8 @@ def dict_to_namespace(d):
 config = dict_to_namespace(load_config())
 
 def load_tokenizations():
-    metadata_path = "/home/s203861/midi-classical-music/tokenization.json"
-    # metadata_path = "/scratch/s203861/data/tokenization.json"
+    # metadata_path = "/home/s203861/midi-classical-music/tokenization.json"
+    metadata_path = "/scratch/s203861/data/tokenization.json"
     with open(metadata_path, "r") as file:
         return json.load(file)
 

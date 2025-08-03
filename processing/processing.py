@@ -32,9 +32,6 @@ def preprocess_midi_files(midi_folder, preprocess_folder):
         band_name = path_parts[-2]
         song_name = Path(path).stem
 
-        # os.makedirs(os.path.join(preprocess_folder, band_name), exist_ok=True)
-        # new_path = os.path.join(preprocess_folder, band_name, song_name)
-
         os.makedirs(os.path.join(preprocess_folder, model_name, band_name), exist_ok=True)
         new_path = os.path.join(preprocess_folder, model_name, band_name, song_name)
         
@@ -50,7 +47,7 @@ def preprocess_midi_files(midi_folder, preprocess_folder):
 
         try:
             midi_notes = extract_midi(path)
-            if len(midi_notes) == 0:
+            if len(midi_notes) < 200:
                 continue
             token_seq = encode(midi_notes)
             np.save(new_path + '.npy', token_seq)
@@ -88,7 +85,6 @@ def extract_midi(path):
 def note_to_midi(midi_notes, output_path):
     midi_object = pretty_midi.PrettyMIDI()
 
-    # Group notes by channel if you have multiple channels
     channel_to_notes = {}
     for note in midi_notes:
         channel_to_notes.setdefault(note.channel, []).append(note)
@@ -161,12 +157,10 @@ def revert_note_time(midi_notes):
     prev_beat = 0
     prev_tempo = midi_notes[0].tempo
     for idx, n in enumerate(midi_notes):
-        # Calculate time_start and time_end
         resolution = 60 / prev_tempo / res_per_beat
         time_start = prev_time + (n.time_start - prev_beat) * resolution
         time_end = time_start + (n.time_end - n.time_start) * resolution
 
-        # Update current time for the next note
         prev_time = time_start
         prev_beat = n.time_start
         prev_tempo = n.tempo

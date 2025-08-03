@@ -14,9 +14,7 @@ def generate_matrix(n: int, x: int) -> torch.Tensor:
         matrix[i, :6] = 1.0
     
     return matrix
-class Head(nn.Module):
-    """ one head of self-attention """
-    
+class Head(nn.Module): 
     def __init__(self, n_embd, head_size, block_size):
         super().__init__()
         self.key = nn.Linear(n_embd, head_size, bias=False)
@@ -41,8 +39,6 @@ class Head(nn.Module):
         return out
 
 class MultiHeadAttention(nn.Module):
-    """ multiple heads of self-attention in parallel """
-
     def __init__(self, n_embd, n_heads, head_size, block_size, dropout):
         super().__init__()
         # self.heads = nn.ModuleList([Head(n_embd, head_size, block_size) for _ in range(n_heads)])
@@ -56,8 +52,6 @@ class MultiHeadAttention(nn.Module):
         return out
 
 class HeadRelPos(nn.Module):
-    """ one head of self-attention with relative positional encoding (Transformer-XL style) """
-
     def __init__(self, n_embd, head_size, block_size):
         super().__init__()
         self.key = nn.Linear(n_embd, head_size, bias=False)
@@ -73,19 +67,13 @@ class HeadRelPos(nn.Module):
         q = self.query(x) # (B,T,head_size)
         v = self.value(x) # (B,T,head_size)
 
-        # Content-based attention
         AC = torch.einsum('bth,bsh->bts', q, k)  # (B, T, T)
 
-        # Relative positional attention
-        # rel_pos_emb: (block_size, head_size)
         rel_pos_emb = self.rel_pos_emb[:T, :]  # (T, head_size)
-        # q: (B, T, head_size), rel_pos_emb: (T, head_size)
         BD = torch.einsum('bth,sh->bts', q, rel_pos_emb)  # (B, T, T)
 
-        # Shift BD so that each position i attends to j-i
         BD = self._rel_shift(BD)
 
-        # Combine
         attn = (AC + BD) * (C ** -0.5)
         attn = attn.masked_fill(self.tril[:T, :T] == 0, float('-inf'))
         attn = F.softmax(attn, dim=-1)
@@ -95,10 +83,7 @@ class HeadRelPos(nn.Module):
 
     @staticmethod
     def _rel_shift(x):
-        # x: (B, T, T)
-        # Shift the matrix for relative positions: see Transformer-XL Appendix A.4
         B, T, _ = x.size()
-        # Add a dummy zero column on the left
         zero_pad = torch.zeros((B, T, 1), device=x.device, dtype=x.dtype)
         x_padded = torch.cat([zero_pad, x], dim=2)  # (B, T, T+1)
         x_shifted = x_padded.view(B, T + 1, T)[:, 1:, :]  # (B, T, T)
@@ -123,7 +108,6 @@ class Block(nn.Module):
     """ Transformer block: communication followed by computation """
 
     def __init__(self, n_embd, n_heads, block_size, dropout):
-        # n_embd: embedding dimension, n_head: the number of heads we'd like
         super().__init__()
         head_size = n_embd // n_heads
         self.sa = MultiHeadAttention(n_embd, n_heads, head_size, block_size, dropout)
@@ -154,12 +138,10 @@ class Transformer(nn.Module):
         super().__init__()
         self.vocab_size = params.vocab_size
         self.metadata_vocab_size = params.metadata_vocab_size
-        # Embedding layers for tokens and positions
         self.token_embedding_table = nn.Embedding(params.vocab_size, params.n_embd)
         self.metadata_embedding_table = nn.Embedding(params.metadata_vocab_size, params.n_embd)
         # self.positional_encoding = PositionalEncoding(params.n_embd, params.block_len, params.device)
 
-        # Transformer blocks
         self.blocks = nn.Sequential(*[Block(params.n_embd, params.n_heads, params.block_len + 6, params.dropout) for _ in range(params.n_layer)])
         self.ln_f = nn.LayerNorm(params.n_embd)  # final layer norm
         self.lm_head = nn.Linear(params.n_embd, params.vocab_size)
@@ -167,7 +149,6 @@ class Transformer(nn.Module):
     def forward(self, idx, metadata_idx, targets=None):
         B, T = idx.shape
 
-        # Embedding lookups for tokens and positions
         x = self.token_embedding_table(idx)  # Shape: (B, T, C)
         # x = self.positional_encoding(x)
         metadata_embedding = self.metadata_embedding_table(metadata_idx)
@@ -175,12 +156,10 @@ class Transformer(nn.Module):
         
         B1, T1, C1 = x.shape
 
-        # Transformer blocks
         x = self.blocks(x)  # Shape: (B, T, C)
         x = self.ln_f(x)    # Shape: (B, T, C)
         logits = self.lm_head(x)  # Shape: (B, T, vocab_size)
 
-        # logits = logits.view(B, T, -1)
         logits = logits.view(B1, T1, -1)
         logits = logits[:, -T:, :]
         return logits

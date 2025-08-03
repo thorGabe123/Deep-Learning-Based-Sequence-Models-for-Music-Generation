@@ -1,13 +1,13 @@
-# paths:
-#   midi_dataset: /scratch/s203861/data
-#   np_dataset: /scratch/s203861/data
-#   tokenizations: /scratch/s203861/data/tokenization.json
-#   metadata: /scratch/s203861/data/metadata.json
-#   pretrained: /scratch/s203861/pretrained
-  
 paths:
-  midi_dataset: /home/s203861/midi-classical-music/data
-  np_dataset: /home/s203861/midi-classical-music/np_data/data
-  tokenizations: /home/s203861/midi-classical-music/tokenization.json
-  metadata: /home/s203861/midi-classical-music/metadata.json
+  midi_dataset: /scratch/s203861/data/dataset
+  np_dataset: /scratch/s203861/data/np_dataset
+  tokenizations: /scratch/s203861/data/tokenization.json
+  metadata: /scratch/s203861/data/metadata.json
   pretrained: /scratch/s203861/pretrained
+  
+# paths:
+#   midi_dataset: /home/s203861/midi-classical-music/data
+#   np_dataset: /home/s203861/midi-classical-music/np_data/data
+#   tokenizations: /home/s203861/midi-classical-music/tokenization.json
+#   metadata: /home/s203861/midi-classical-music/metadata.json
+#   pretrained: /scratch/s203861/pretrained

@@ -8,6 +8,10 @@ import json
 from processing import *
 import configs.common as cc
 import configs.paths as paths
+from torch.utils.data.distributed import DistributedSampler
+import torch.distributed as dist
+
+
 
 current_dir = Path(__file__).parent
 
@@ -117,15 +121,12 @@ class SequenceDataset(Dataset):
         tokenizations['band_tokenized'][None] = START_IDX_META['BAND'] - 1
         save_metadata_tokenizations(tokenizations)
 
-        # Create final metadata dictionary with tokenized values
         test_meta = {}
         for band, elem in metadata_json.items():
-            # Tokenize and pad genres
             genres = [genre_tokenized[genre] for genre in elem['genres']]
             if len(genres) < 4:
                 genres += [START_IDX_META['GENRE'] - 1] * (4 - len(genres))  # Pad with 0 tokens
 
-            # Combine band, genres, and decade into a list
             test_meta[band] = torch.tensor([band_tokenized[band]] + genres + [time_tokenized[elem['decade']]])
 
         return test_meta
@@ -189,11 +190,8 @@ class SequenceDataset(Dataset):
         # Fetch metadata for the band
         path_parts = Path(file_path).parts
         band_name = path_parts[-2]
-        # band_name = re.match(r'^([^,]*,[^,]*)', path_parts[-1])[0]
         band_metadata = self.metadata_dict[band_name].to(cc.config.values.device)
 
-        # Return sequence and metadata
-        # return sequence[:-1], sequence[1:]
         return sequence[:-1], sequence[1:], band_metadata
 
     def file_prob(self):
@@ -228,14 +226,19 @@ class DatasetLoader:
         return random_split(self.dataset, [train_size, test_size])
 
     def _create_sampler(self, dataset):
-        """
-        Create a WeightedRandomSampler for a given dataset.
-        """
-        return WeightedRandomSampler(
-            weights=[self.file_prob[i] for i in dataset.indices],
-            num_samples=len(dataset),
-            replacement=True
-        )
+        if cc.config.values.parallel:
+            return DistributedSampler(
+                dataset,
+                num_replicas=dist.get_world_size(),  # Number of processes (GPUs)
+                rank=dist.get_rank(),                 # This process's rank
+                shuffle=True  # Randomizes each epoch; use False for deterministic ordering
+            )
+        else:
+            return WeightedRandomSampler(
+                weights=[self.file_prob[i] for i in dataset.indices],
+                num_samples=len(dataset),
+                replacement=True
+            )
 
     def get_dataloaders(self):
         """

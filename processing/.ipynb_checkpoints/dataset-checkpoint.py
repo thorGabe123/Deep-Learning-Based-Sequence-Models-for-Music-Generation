@@ -8,6 +8,10 @@ import json
 from processing import *
 import configs.common as cc
 import configs.paths as paths
+from torch.utils.data.distributed import DistributedSampler
+import torch.distributed as dist
+
+
 
 current_dir = Path(__file__).parent
 
@@ -228,14 +232,19 @@ class DatasetLoader:
         return random_split(self.dataset, [train_size, test_size])
 
     def _create_sampler(self, dataset):
-        """
-        Create a WeightedRandomSampler for a given dataset.
-        """
-        return WeightedRandomSampler(
-            weights=[self.file_prob[i] for i in dataset.indices],
-            num_samples=len(dataset),
-            replacement=True
-        )
+        if cc.config.values.parallel:
+            return DistributedSampler(
+                dataset,
+                num_replicas=dist.get_world_size(),  # Number of processes (GPUs)
+                rank=dist.get_rank(),                 # This process's rank
+                shuffle=True  # Randomizes each epoch; use False for deterministic ordering
+            )
+        else:
+            return WeightedRandomSampler(
+                weights=[self.file_prob[i] for i in dataset.indices],
+                num_samples=len(dataset),
+                replacement=True
+            )
 
     def get_dataloaders(self):
         """
