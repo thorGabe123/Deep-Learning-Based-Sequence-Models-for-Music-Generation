@@ -11,7 +11,6 @@ Welcome to the repository for my Master's thesis titled "Deep Learning Based Seq
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 - [Datasets](#datasets)
-- [Contact](#contact)
 
 ## Introduction
 
@@ -100,3 +99,11 @@ python generate_midi_combined.py --length 2000 --mamba True --composers "Mozart,
     └── Extra             # Audio or midi samples not used during testing 
 
 ```
+
+Our project utilizes the following MIDI music datasets:
+
+- [**MIDI Classical Music** (HuggingFace)](https://huggingface.co/datasets/drengskapur/midi-classical-music):  
+  A collection of classical music MIDI files.
+
+- [**Lakh MIDI Clean** (Kaggle)](https://www.kaggle.com/datasets/imsparsh/lakh-midi-clean):  
+  A large-scale, cleaned version of the Lakh MIDI dataset containing a wide range of genres and compositions.
