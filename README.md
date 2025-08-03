@@ -28,7 +28,17 @@ To set up the environment for this project, follow these steps:
 
 ## Usage
 
-The models
+An example of training the model using 2 GPUs
+```
+cd Deep-Learning-Based-Sequence-Models-for-Music-Generation
+torchrun --nproc_per_node=2 train_parallel.py --model mamba
+```
+
+An example of generating 2000 token samples from the Mamba model
+```
+cd Deep-Learning-Based-Sequence-Models-for-Music-Generation/scripts
+python generate_midi_combined.py --length 2000 --mamba True --composers "Mozart, Bach, Beethoven, Chopin, Liszt"
+```
 
 ## Project Structure
 
