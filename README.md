@@ -6,15 +6,10 @@ Welcome to the repository for my Master's thesis titled "Deep Learning Based Seq
 
 ## Table of Contents
 
-- [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 - [Datasets](#datasets)
-
-## Introduction
-
-Recent advancements in deep learning, particularly in sequence modeling architectures such as xLSTM and Mamba, have allowed for improved context-windows and claims to outperform the previous Transformer model in large language models of similar size. On the subject of music generation, the overarching theme of the music can spans many thousands of tokens, depending on the representation of the music. It is therefore of great interest to test these new models to find their potential in generating high-quality, conditioned, polyphonic compositions from discrete symbolic representation. Transformer-based models faced limitations due to the quadratic scaling of architecture size with context window length, but with the linear scaling in architectural size with context window length of the xLSTM and Mamba model.
 
 ## Installation
 
