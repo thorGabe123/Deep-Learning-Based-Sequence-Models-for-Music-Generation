@@ -198,6 +198,68 @@ class SequenceDataset(Dataset):
         file_prob = [len(np.load(path)) for path in self.file_paths]
         file_prob /= np.sum(file_prob)
         return file_prob
+    
+class Metadata(Dataset):
+    def __init__(self):
+        self.metadata_dict = self.get_metadata_dict()
+
+    def get_metadata_dict(self):
+        # Load the metadata
+        metadata = get_metadata_json()
+
+        # Initialize genre list and time range
+        genre_list = []
+        min_time, max_time = 1e9, 0
+
+        # Process metadata to extract bands, decades, and genres
+        metadata_json = {}
+        for data in metadata['artists']:
+            band = data['name']
+            decade = floor_to_nearest_10(data['year_started'])
+            min_time = min(min_time, decade)
+            max_time = max(max_time, decade)
+            genres = data['genres']
+            for genre in genres:
+                if genre not in genre_list:
+                    genre_list.append(genre)
+            metadata_json[band] = {'decade': decade, 'genres': genres}
+
+        # Calculate metadata tokenization ranges
+        num_decades = (max_time - min_time) // 10 + 1
+        num_genres = len(genre_list)
+        num_bands = len(metadata_json)
+
+        # Define START_IDX_META for tokenization
+        START_IDX_META = {}
+        START_IDX_META['DECADE'] = 1
+        START_IDX_META['GENRE'] = START_IDX_META['DECADE'] + num_decades + 1
+        START_IDX_META['BAND'] = START_IDX_META['GENRE'] + num_genres + 1
+
+        # Tokenize bands, decades, and genres
+        band_tokenized = {band: idx + START_IDX_META['BAND'] for idx, band in enumerate(metadata_json)}
+        time_tokenized = {time: idx + START_IDX_META['DECADE'] for idx, time in enumerate(range(min_time, max_time + 1, 10))}
+        genre_tokenized = {genre: idx + START_IDX_META['GENRE'] for idx, genre in enumerate(genre_list)}
+
+        # Save tokenizations
+        tokenizations = {
+            'time_tokenized': time_tokenized,
+            'genre_tokenized': genre_tokenized,
+            'band_tokenized': band_tokenized
+        }
+        tokenizations['time_tokenized'][None] = START_IDX_META['DECADE'] - 1
+        tokenizations['genre_tokenized'][None] = START_IDX_META['GENRE'] - 1
+        tokenizations['band_tokenized'][None] = START_IDX_META['BAND'] - 1
+        save_metadata_tokenizations(tokenizations)
+
+        test_meta = {}
+        for band, elem in metadata_json.items():
+            genres = [genre_tokenized[genre] for genre in elem['genres']]
+            if len(genres) < 4:
+                genres += [START_IDX_META['GENRE'] - 1] * (4 - len(genres))  # Pad with 0 tokens
+
+            test_meta[band] = torch.tensor([band_tokenized[band]] + genres + [time_tokenized[elem['decade']]])
+
+        return test_meta
 
 class DatasetLoader:
     def __init__(self, directory, batch_size=cc.config.values.batch_size, test_ratio=cc.config.values.test_ratio):

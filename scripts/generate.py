@@ -24,6 +24,8 @@ def generate(
     meta_ids = meta_ids.to(device)
 
     for step in range(num_tokens):
+        if token_ids.size(1) > context_len:
+            token_ids = token_ids[:, -context_len:]
         logits = model(token_ids, meta_ids)      # (batch, seq_len, vocab_size)
         filtered_logits = train.filtered_logit(token_ids, logits)
         logits_last = filtered_logits[:, -1, :]  # (batch, vocab_size)
@@ -85,8 +87,6 @@ def generate(
         # Update token_ids for next step
         new_tokens_tensor = torch.tensor(next_tokens, device=device).unsqueeze(1)
         token_ids = torch.cat([token_ids, new_tokens_tensor], dim=1)
-        if token_ids.size(1) > context_len:
-            token_ids = token_ids[:, -context_len:]
 
     # Slice generated tensor lists to lengths
     out = []
