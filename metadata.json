@@ -1,0 +1,1792 @@
+{
+    "artists": [
+      {
+        "name": "2_Unlimited",
+        "year_started": 1990,
+        "genres": [
+          "Eurodance",
+          "Techno",
+          "Dance"
+        ]
+      },
+      {
+        "name": "883",
+        "year_started": 1990,
+        "genres": [
+          "Pop",
+          "Pop Rock"
+        ]
+      },
+      {
+        "name": "ABBA",
+        "year_started": 1970,
+        "genres": [
+          "Pop",
+          "Disco"
+        ]
+      },
+      {
+        "name": "Ace_of_Base",
+        "year_started": 1990,
+        "genres": [
+          "Pop",
+          "Eurodance",
+          "Reggae Fusion"
+        ]
+      },
+      {
+        "name": "Aerosmith",
+        "year_started": 1970,
+        "genres": [
+          "Hard Rock",
+          "Blues Rock",
+          "Rock"
+        ]
+      },
+      {
+        "name": "Annie_Lennox",
+        "year_started": 1980,
+        "genres": [
+          "Pop",
+          "Synthpop",
+          "Soul"
+        ]
+      },
+      {
+        "name": "Antonello_Venditti",
+        "year_started": 1970,
+        "genres": [
+          "Pop",
+          "Italian Pop",
+          "Singer-Songwriter"
+        ]
+      },
+      {
+        "name": "Aqua",
+        "year_started": 1990,
+        "genres": [
+          "Eurodance",
+          "Pop",
+          "Dance-pop"
+        ]
+      },
+      {
+        "name": "BOWIE_DAVID",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Glam Rock",
+          "Art Rock",
+          "Pop"
+        ]
+      },
+      {
+        "name": "Backstreet_Boys",
+        "year_started": 1990,
+        "genres": [
+          "Pop",
+          "Dance-pop",
+          "Teen Pop"
+        ]
+      },
+      {
+        "name": "Basie",
+        "year_started": 1940,
+        "genres": [
+          "Jazz",
+          "Swing",
+          "Big Band"
+        ]
+      },
+      {
+        "name": "Battiato",
+        "year_started": 1970,
+        "genres": [
+          "Pop",
+          "Art Pop",
+          "Progressive Rock"
+        ]
+      },
+      {
+        "name": "Battisti",
+        "year_started": 1970,
+        "genres": [
+          "Pop",
+          "Rock",
+          "Singer-Songwriter"
+        ]
+      },
+      {
+        "name": "Bee_Gees",
+        "year_started": 1960,
+        "genres": [
+          "Pop",
+          "Disco",
+          "Rock",
+          "Soft Rock"
+        ]
+      },
+      {
+        "name": "Billy_Joel",
+        "year_started": 1970,
+        "genres": [
+          "Pop Rock",
+          "Rock",
+          "Soft Rock"
+        ]
+      },
+      {
+        "name": "Bon_Jovi",
+        "year_started": 1980,
+        "genres": [
+          "Rock",
+          "Hard Rock",
+          "Pop Rock"
+        ]
+      },
+      {
+        "name": "Brassens_Georges",
+        "year_started": 1950,
+        "genres": [
+          "Chanson",
+          "Folk",
+          "Singer-Songwriter"
+        ]
+      },
+      {
+        "name": "Britney_Spears",
+        "year_started": 1990,
+        "genres": [
+          "Pop",
+          "Dance-pop"
+        ]
+      },
+      {
+        "name": "Brooks_Garth",
+        "year_started": 1990,
+        "genres": [
+          "Country",
+          "Country Pop"
+        ]
+      },
+      {
+        "name": "Bruce_Springsteen",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Heartland Rock",
+          "Folk Rock"
+        ]
+      },
+      {
+        "name": "Bryan_Adams",
+        "year_started": 1980,
+        "genres": [
+          "Rock",
+          "Pop Rock",
+          "Soft Rock"
+        ]
+      },
+      {
+        "name": "Carpenters",
+        "year_started": 1970,
+        "genres": [
+          "Pop",
+          "Soft Rock",
+          "Adult Contemporary"
+        ]
+      },
+      {
+        "name": "Celentano",
+        "year_started": 1960,
+        "genres": [
+          "Pop",
+          "Rock and Roll",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "Celine_Dion",
+        "year_started": 1980,
+        "genres": [
+          "Pop",
+          "Adult Contemporary"
+        ]
+      },
+      {
+        "name": "Chicago",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Soft Rock",
+          "Jazz Rock"
+        ]
+      },
+      {
+        "name": "Chris_Rea",
+        "year_started": 1980,
+        "genres": [
+          "Rock",
+          "Blues",
+          "Pop"
+        ]
+      },
+      {
+        "name": "Collins_Phil",
+        "year_started": 1980,
+        "genres": [
+          "Pop Rock",
+          "Soft Rock"
+        ]
+      },
+      {
+        "name": "Creedence_Clearwater_Revival",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Roots Rock",
+          "Swamp Rock"
+        ]
+      },
+      {
+        "name": "Dalla",
+        "year_started": 1970,
+        "genres": [
+          "Pop",
+          "Singer-Songwriter"
+        ]
+      },
+      {
+        "name": "Daniele",
+        "year_started": 1970,
+        "genres": [
+          "Blues",
+          "Rock",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "Deep_Purple",
+        "year_started": 1970,
+        "genres": [
+          "Hard Rock",
+          "Heavy Metal",
+          "Rock"
+        ]
+      },
+      {
+        "name": "Depeche_Mode",
+        "year_started": 1980,
+        "genres": [
+          "Synthpop",
+          "New Wave",
+          "Alternative Rock"
+        ]
+      },
+      {
+        "name": "Dire_Straits",
+        "year_started": 1980,
+        "genres": [
+          "Rock",
+          "Roots Rock",
+          "Pub Rock"
+        ]
+      },
+      {
+        "name": "Duran_Duran",
+        "year_started": 1980,
+        "genres": [
+          "New Wave",
+          "Pop",
+          "Synthpop"
+        ]
+      },
+      {
+        "name": "Eagles",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Country Rock",
+          "Soft Rock"
+        ]
+      },
+      {
+        "name": "Earth,_Wind_and_Fire",
+        "year_started": 1970,
+        "genres": [
+          "Funk",
+          "Soul",
+          "R&B",
+          "Disco"
+        ]
+      },
+      {
+        "name": "Elton_John",
+        "year_started": 1970,
+        "genres": [
+          "Pop",
+          "Rock",
+          "Soft Rock"
+        ]
+      },
+      {
+        "name": "Elvis_Presley",
+        "year_started": 1950,
+        "genres": [
+          "Rock and Roll",
+          "Pop",
+          "Country",
+          "Blues"
+        ]
+      },
+      {
+        "name": "Emerson,_Lake_and_Palmer",
+        "year_started": 1970,
+        "genres": [
+          "Progressive Rock",
+          "Art Rock"
+        ]
+      },
+      {
+        "name": "Erasure",
+        "year_started": 1980,
+        "genres": [
+          "Synthpop",
+          "New Wave",
+          "Dance-pop"
+        ]
+      },
+      {
+        "name": "Eric_Clapton",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Blues",
+          "Blues Rock"
+        ]
+      },
+      {
+        "name": "Estefan_Gloria",
+        "year_started": 1980,
+        "genres": [
+          "Pop",
+          "Dance-pop",
+          "Latin Pop"
+        ]
+      },
+      {
+        "name": "Eurythmics",
+        "year_started": 1980,
+        "genres": [
+          "Synthpop",
+          "Pop",
+          "New Wave"
+        ]
+      },
+      {
+        "name": "Fiorella_Mannoia",
+        "year_started": 1980,
+        "genres": [
+          "Pop",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "Fleetwood_Mac",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Pop Rock",
+          "Soft Rock"
+        ]
+      },
+      {
+        "name": "Frank_Sinatra",
+        "year_started": 1940,
+        "genres": [
+          "Traditional Pop",
+          "Jazz",
+          "Swing"
+        ]
+      },
+      {
+        "name": "Genesis",
+        "year_started": 1970,
+        "genres": [
+          "Progressive Rock",
+          "Pop Rock",
+          "Art Rock"
+        ]
+      },
+      {
+        "name": "Giorgia",
+        "year_started": 1990,
+        "genres": [
+          "Pop",
+          "Soul",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "Green_Day",
+        "year_started": 1990,
+        "genres": [
+          "Punk Rock",
+          "Alternative Rock",
+          "Pop Punk"
+        ]
+      },
+      {
+        "name": "Guns_N_Roses",
+        "year_started": 1980,
+        "genres": [
+          "Hard Rock",
+          "Heavy Metal",
+          "Rock"
+        ]
+      },
+      {
+        "name": "Jackson_Michael",
+        "year_started": 1970,
+        "genres": [
+          "Pop",
+          "R&B",
+          "Dance-pop",
+          "Soul"
+        ]
+      },
+      {
+        "name": "Jamiroquai",
+        "year_started": 1990,
+        "genres": [
+          "Funk",
+          "Acid Jazz",
+          "Disco"
+        ]
+      },
+      {
+        "name": "Jean_Michel_Jarre",
+        "year_started": 1970,
+        "genres": [
+          "Electronic",
+          "Ambient",
+          "New Age"
+        ]
+      },
+      {
+        "name": "Joe_Cocker",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Blues",
+          "Soul"
+        ]
+      },
+      {
+        "name": "John_Elton",
+        "year_started": 1970,
+        "genres": [
+          "Pop",
+          "Rock",
+          "Soft Rock"
+        ]
+      },
+      {
+        "name": "Jovanotti",
+        "year_started": 1990,
+        "genres": [
+          "Pop",
+          "Hip Hop",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "Kiss",
+        "year_started": 1970,
+        "genres": [
+          "Hard Rock",
+          "Glam Rock",
+          "Heavy Metal"
+        ]
+      },
+      {
+        "name": "LIGABUE",
+        "year_started": 1990,
+        "genres": [
+          "Rock",
+          "Pop Rock",
+          "Italian Rock"
+        ]
+      },
+      {
+        "name": "Led_Zeppelin",
+        "year_started": 1970,
+        "genres": [
+          "Hard Rock",
+          "Rock",
+          "Blues Rock"
+        ]
+      },
+      {
+        "name": "Madonna",
+        "year_started": 1980,
+        "genres": [
+          "Pop",
+          "Dance-pop",
+          "Electronic"
+        ]
+      },
+      {
+        "name": "Mariah_Carey",
+        "year_started": 1990,
+        "genres": [
+          "Pop",
+          "R&B",
+          "Soul"
+        ]
+      },
+      {
+        "name": "Masini",
+        "year_started": 1990,
+        "genres": [
+          "Pop",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "McCartney",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Pop",
+          "Singer-Songwriter"
+        ]
+      },
+      {
+        "name": "Metallica",
+        "year_started": 1980,
+        "genres": [
+          "Heavy Metal",
+          "Thrash Metal",
+          "Hard Rock"
+        ]
+      },
+      {
+        "name": "Michael_George",
+        "year_started": 1980,
+        "genres": [
+          "Pop",
+          "Dance-pop",
+          "Soul"
+        ]
+      },
+      {
+        "name": "Mina",
+        "year_started": 1960,
+        "genres": [
+          "Pop",
+          "Jazz",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "Morandi",
+        "year_started": 1960,
+        "genres": [
+          "Pop",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "Neil_Diamond",
+        "year_started": 1970,
+        "genres": [
+          "Pop",
+          "Rock",
+          "Folk"
+        ]
+      },
+      {
+        "name": "Nek",
+        "year_started": 1990,
+        "genres": [
+          "Pop",
+          "Pop Rock",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "Nine_Inch_Nails",
+        "year_started": 1990,
+        "genres": [
+          "Industrial Rock",
+          "Alternative Rock",
+          "Electronic"
+        ]
+      },
+      {
+        "name": "Nirvana",
+        "year_started": 1990,
+        "genres": [
+          "Grunge",
+          "Alternative Rock"
+        ]
+      },
+      {
+        "name": "Nomadi",
+        "year_started": 1960,
+        "genres": [
+          "Pop Rock",
+          "Progressive Rock",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "Oasis",
+        "year_started": 1990,
+        "genres": [
+          "Britpop",
+          "Alternative Rock"
+        ]
+      },
+      {
+        "name": "Pet_Shop_Boys",
+        "year_started": 1980,
+        "genres": [
+          "Synthpop",
+          "Dance-pop",
+          "Electronic"
+        ]
+      },
+      {
+        "name": "Pink_Floyd",
+        "year_started": 1970,
+        "genres": [
+          "Progressive Rock",
+          "Psychedelic Rock",
+          "Art Rock"
+        ]
+      },
+      {
+        "name": "Pooh",
+        "year_started": 1970,
+        "genres": [
+          "Pop Rock",
+          "Progressive Rock",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "Prince",
+        "year_started": 1980,
+        "genres": [
+          "Pop",
+          "Funk",
+          "R&B",
+          "Rock"
+        ]
+      },
+      {
+        "name": "Queen",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Hard Rock",
+          "Glam Rock"
+        ]
+      },
+      {
+        "name": "RICHIE_LIONEL",
+        "year_started": 1980,
+        "genres": [
+          "Pop",
+          "R&B",
+          "Soul"
+        ]
+      },
+      {
+        "name": "Ramazzotti",
+        "year_started": 1980,
+        "genres": [
+          "Pop",
+          "Italian Pop",
+          "Pop Rock"
+        ]
+      },
+      {
+        "name": "Rene_Froger",
+        "year_started": 1990,
+        "genres": [
+          "Pop"
+        ]
+      },
+      {
+        "name": "Rossi_Vasco",
+        "year_started": 1980,
+        "genres": [
+          "Rock",
+          "Pop Rock",
+          "Italian Rock"
+        ]
+      },
+      {
+        "name": "Roxette",
+        "year_started": 1990,
+        "genres": [
+          "Pop Rock",
+          "Pop"
+        ]
+      },
+      {
+        "name": "Rush",
+        "year_started": 1970,
+        "genres": [
+          "Progressive Rock",
+          "Hard Rock"
+        ]
+      },
+      {
+        "name": "Santana",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Latin Rock",
+          "Blues Rock"
+        ]
+      },
+      {
+        "name": "Sinatra",
+        "year_started": 1940,
+        "genres": [
+          "Traditional Pop",
+          "Jazz",
+          "Swing"
+        ]
+      },
+      {
+        "name": "Spice_Girls",
+        "year_started": 1990,
+        "genres": [
+          "Pop",
+          "Dance-pop"
+        ]
+      },
+      {
+        "name": "Steely_Dan",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Jazz Rock",
+          "Pop Rock"
+        ]
+      },
+      {
+        "name": "Sting",
+        "year_started": 1980,
+        "genres": [
+          "Rock",
+          "Pop",
+          "Jazz"
+        ]
+      },
+      {
+        "name": "Styx",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Progressive Rock",
+          "Hard Rock"
+        ]
+      },
+      {
+        "name": "Supertramp",
+        "year_started": 1970,
+        "genres": [
+          "Progressive Rock",
+          "Pop Rock",
+          "Art Rock"
+        ]
+      },
+      {
+        "name": "The_Alan_Parsons_Project",
+        "year_started": 1970,
+        "genres": [
+          "Progressive Rock",
+          "Art Rock",
+          "Pop Rock"
+        ]
+      },
+      {
+        "name": "The_Allman_Brothers_Band",
+        "year_started": 1970,
+        "genres": [
+          "Southern Rock",
+          "Blues Rock",
+          "Jam Band"
+        ]
+      },
+      {
+        "name": "The_Beach_Boys",
+        "year_started": 1960,
+        "genres": [
+          "Pop",
+          "Rock",
+          "Surf Rock"
+        ]
+      },
+      {
+        "name": "The_Beatles",
+        "year_started": 1960,
+        "genres": [
+          "Rock",
+          "Pop",
+          "Psychedelic Rock"
+        ]
+      },
+      {
+        "name": "The_Corrs",
+        "year_started": 1990,
+        "genres": [
+          "Pop Rock",
+          "Celtic",
+          "Folk"
+        ]
+      },
+      {
+        "name": "The_Cranberries",
+        "year_started": 1990,
+        "genres": [
+          "Alternative Rock",
+          "Pop Rock",
+          "Indie Rock"
+        ]
+      },
+      {
+        "name": "The_Doobie_Brothers",
+        "year_started": 1970,
+        "genres": [
+          "Rock",
+          "Pop Rock",
+          "Soft Rock"
+        ]
+      },
+      {
+        "name": "The_Doors",
+        "year_started": 1960,
+        "genres": [
+          "Psychedelic Rock",
+          "Rock",
+          "Blues Rock"
+        ]
+      },
+      {
+        "name": "The_Offspring",
+        "year_started": 1990,
+        "genres": [
+          "Punk Rock",
+          "Alternative Rock",
+          "Pop Punk"
+        ]
+      },
+      {
+        "name": "The_Police",
+        "year_started": 1980,
+        "genres": [
+          "Rock",
+          "New Wave",
+          "Post-Punk"
+        ]
+      },
+      {
+        "name": "The_Rolling_Stones",
+        "year_started": 1960,
+        "genres": [
+          "Rock",
+          "Blues Rock",
+          "Classic Rock"
+        ]
+      },
+      {
+        "name": "The_Smashing_Pumpkins",
+        "year_started": 1990,
+        "genres": [
+          "Alternative Rock",
+          "Alternative Metal",
+          "Dream Pop"
+        ]
+      },
+      {
+        "name": "Tom_Jones",
+        "year_started": 1960,
+        "genres": [
+          "Pop",
+          "Soul",
+          "R&B"
+        ]
+      },
+      {
+        "name": "Toto",
+        "year_started": 1980,
+        "genres": [
+          "Rock",
+          "Pop Rock",
+          "Soft Rock"
+        ]
+      },
+      {
+        "name": "Tozzi",
+        "year_started": 1980,
+        "genres": [
+          "Pop",
+          "Italian Pop",
+          "Pop Rock"
+        ]
+      },
+      {
+        "name": "U2",
+        "year_started": 1980,
+        "genres": [
+          "Rock",
+          "Alternative Rock",
+          "Post-Punk"
+        ]
+      },
+      {
+        "name": "Van_Halen",
+        "year_started": 1980,
+        "genres": [
+          "Hard Rock",
+          "Heavy Metal",
+          "Rock"
+        ]
+      },
+      {
+        "name": "Whitney_Houston",
+        "year_started": 1980,
+        "genres": [
+          "Pop",
+          "R&B",
+          "Dance-pop"
+        ]
+      },
+      {
+        "name": "Wonder_Stevie",
+        "year_started": 1970,
+        "genres": [
+          "Soul",
+          "R&B",
+          "Pop",
+          "Funk"
+        ]
+      },
+      {
+        "name": "Yes",
+        "year_started": 1970,
+        "genres": [
+          "Progressive Rock",
+          "Art Rock",
+          "Symphonic Rock"
+        ]
+      },
+      {
+        "name": "Zero",
+        "year_started": 1970,
+        "genres": [
+          "Pop",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "Zucchero",
+        "year_started": 1980,
+        "genres": [
+          "Blues",
+          "Pop",
+          "Rock",
+          "Italian Pop"
+        ]
+      },
+      {
+        "name": "Albeniz",
+        "year_started": 1890,
+        "genres": [
+          "Romantic",
+          "Spanish Classical"
+        ]
+      },
+      {
+        "name": "Alkan",
+        "year_started": 1840,
+        "genres": [
+          "Romantic"
+        ]
+      },
+      {
+        "name": "Ambroise",
+        "year_started": 1870,
+        "genres": [
+          "Romantic"
+        ]
+      },
+      {
+        "name": "Arensky",
+        "year_started": 1890,
+        "genres": [
+          "Romantic"
+        ]
+      },
+      {
+        "name": "Arndt",
+        "year_started": 1900,
+        "genres": [
+          "Ragtime",
+          "20th Century"
+        ]
+      },
+      {
+        "name": "Bacewitz",
+        "year_started": 1930,
+        "genres": [
+          "20th Century",
+          "Polish Classical"
+        ]
+      },
+      {
+        "name": "Bach",
+        "year_started": 1720,
+        "genres": [
+          "Baroque"
+        ]
+      },
+      {
+        "name": "Barber",
+        "year_started": 1930,
+        "genres": [
+          "20th Century",
+          "Modern Classical"
+        ]
+      },
+      {
+        "name": "Bartelet",
+        "year_started": 1990,
+        "genres": [
+          "Classical"
+        ]
+      },
+      {
+        "name": "Bartok",
+        "year_started": 1910,
+        "genres": [
+          "20th Century",
+          "Modern Classical",
+          "Hungarian Classical"
+        ]
+      },
+      {
+        "name": "Becker",
+        "year_started": 1870,
+        "genres": [
+          "Romantic"
+        ]
+      },
+      {
+        "name": "Beethoven",
+        "year_started": 1790,
+        "genres": [
+          "Classical",
+          "Romantic"
+        ]
+      },
+      {
+        "name": "Bellini",
+        "year_started": 1830,
+        "genres": [
+          "Romantic",
+          "Opera"
+        ]
+      },
+      {
+        "name": "Berlin",
+        "year_started": 1910,
+        "genres": [
+          "20th Century",
+          "Popular Song",
+          "Musical Theater"
+        ]
+      },
+      {
+        "name": "Bernstein",
+        "year_started": 1940,
+        "genres": [
+          "20th Century",
+          "Modern Classical",
+          "Broadway"
+        ]
+      },
+      {
+        "name": "Bizet",
+        "year_started": 1860,
+        "genres": [
+          "Romantic",
+          "Opera"
+        ]
+      },
+      {
+        "name": "Borodin",
+        "year_started": 1860,
+        "genres": [
+          "Romantic",
+          "Russian Classical"
+        ]
+      },
+      {
+        "name": "Botsford",
+        "year_started": 1910,
+        "genres": [
+          "Ragtime",
+          "20th Century"
+        ]
+      },
+      {
+        "name": "Brahms",
+        "year_started": 1860,
+        "genres": [
+          "Romantic"
+        ]
+      },
+      {
+        "name": "Burgmuller",
+        "year_started": 1840,
+        "genres": [
+          "Romantic"
+        ]
+      },
+      {
+        "name": "Busoni",
+        "year_started": 1890,
+        "genres": [
+          "Romantic",
+          "20th Century"
+        ]
+      },
+      {
+        "name": "Busser",
+        "year_started": 1890,
+        "genres": [
+          "Romantic",
+          "Impressionist"
+        ]
+      },
+      {
+        "name": "Buxehude",
+        "year_started": 1670,
+        "genres": [
+          "Baroque"
+        ]
+      },
+      {
+        "name": "Chabrier",
+        "year_started": 1880,
+        "genres": [
+          "Romantic",
+          "Impressionist"
+        ]
+      },
+      {
+        "name": "Chaminade",
+        "year_started": 1880,
+        "genres": [
+          "Romantic",
+          "French Classical"
+        ]
+      },
+      {
+        "name": "Chasins",
+        "year_started": 1920,
+        "genres": [
+          "20th Century",
+          "Classical"
+        ]
+      },
+      {
+        "name": "Chopin",
+        "year_started": 1830,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Clementi",
+        "year_started": 1770,
+        "genres": ["Classical"]
+      },
+      {
+        "name": "Coates",
+        "year_started": 1900,
+        "genres": ["20th Century", "Light Classical"]
+      },
+      {
+        "name": "Coleridge",
+        "year_started": 1890,
+        "genres": ["Romantic", "English Classical"]
+      },
+      {
+        "name": "Cons",
+        "year_started": 1980,
+        "genres": ["Classical"]
+      },
+      {
+        "name": "Copland",
+        "year_started": 1920,
+        "genres": ["20th Century", "Modern Classical", "American Classical"]
+      },
+      {
+        "name": "Couperin",
+        "year_started": 1690,
+        "genres": ["Baroque", "French Classical"]
+      },
+      {
+        "name": "Cpe_bach",
+        "year_started": 1740,
+        "genres": ["Classical", "Baroque"]
+      },
+      {
+        "name": "Cramer",
+        "year_started": 1800,
+        "genres": ["Classical", "Early Romantic"]
+      },
+      {
+        "name": "Czerny",
+        "year_started": 1820,
+        "genres": ["Romantic", "Classical"]
+      },
+      {
+        "name": "Czibulka",
+        "year_started": 1870,
+        "genres": ["Romantic", "Light Classical"]
+      },
+      {
+        "name": "Debussy",
+        "year_started": 1890,
+        "genres": ["Impressionist", "20th Century", "French Classical"]
+      },
+      {
+        "name": "Diabelli",
+        "year_started": 1820,
+        "genres": ["Classical", "Romantic"]
+      },
+      {
+        "name": "Durand_e",
+        "year_started": 1900,
+        "genres": ["20th Century", "Impressionist"]
+      },
+      {
+        "name": "Durand_ma",
+        "year_started": 1900,
+        "genres": ["20th Century"]
+      },
+      {
+        "name": "Dussek",
+        "year_started": 1790,
+        "genres": ["Classical", "Romantic"]
+      },
+      {
+        "name": "Dvorak",
+        "year_started": 1870,
+        "genres": ["Romantic", "Czech Classical"]
+      },
+      {
+        "name": "Faure",
+        "year_started": 1870,
+        "genres": ["Romantic", "Impressionist", "French Classical"]
+      },
+      {
+        "name": "Field",
+        "year_started": 1810,
+        "genres": ["Romantic", "Classical"]
+      },
+      {
+        "name": "Finck",
+        "year_started": 1900,
+        "genres": ["20th Century", "Light Classical"]
+      },
+      {
+        "name": "Flotow",
+        "year_started": 1840,
+        "genres": ["Romantic", "Opera"]
+      },
+      {
+        "name": "Franck",
+        "year_started": 1850,
+        "genres": ["Romantic", "French Classical"]
+      },
+      {
+        "name": "Frescobaldi",
+        "year_started": 1610,
+        "genres": ["Baroque", "Italian Classical"]
+      },
+      {
+        "name": "Friedman",
+        "year_started": 1900,
+        "genres": ["20th Century", "Modern Classical", "Polish Classical"]
+      },
+      {
+        "name": "Fucick",
+        "year_started": 1890,
+        "genres": ["Romantic", "March", "Czech Classical"]
+      },
+      {
+        "name": "Ganne",
+        "year_started": 1890,
+        "genres": ["Romantic", "French Classical", "March"]
+      },
+      {
+        "name": "German",
+        "year_started": 1890,
+        "genres": ["Romantic", "English Classical", "Light Classical"]
+      },
+      {
+        "name": "Gershwin",
+        "year_started": 1920,
+        "genres": ["20th Century", "Jazz", "Broadway"]
+      },
+      {
+        "name": "Ginastera",
+        "year_started": 1940,
+        "genres": ["20th Century", "Modern Classical", "Argentine Classical"]
+      },
+      {
+        "name": "Gottschalk",
+        "year_started": 1850,
+        "genres": ["Romantic", "American Classical"]
+      },
+      {
+        "name": "Grainger",
+        "year_started": 1900,
+        "genres": ["20th Century", "Modern Classical", "English Classical"]
+      },
+      {
+        "name": "Grieg",
+        "year_started": 1860,
+        "genres": ["Romantic", "Norwegian Classical"]
+      },
+      {
+        "name": "Griffes",
+        "year_started": 1910,
+        "genres": ["Impressionist", "20th Century", "American Classical"]
+      },
+      {
+        "name": "Haendel",
+        "year_started": 1720,
+        "genres": ["Baroque"]
+      },
+      {
+        "name": "Handel",
+        "year_started": 1720,
+        "genres": ["Baroque"]
+      },
+      {
+        "name": "Haydn",
+        "year_started": 1760,
+        "genres": ["Classical"]
+      },
+      {
+        "name": "Heidrich",
+        "year_started": 1980,
+        "genres": ["Contemporary Classical"]
+      },
+      {
+        "name": "Heller",
+        "year_started": 1830,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Hemery",
+        "year_started": 1970,
+        "genres": ["Contemporary Classical"]
+      },
+      {
+        "name": "Herold",
+        "year_started": 1820,
+        "genres": ["Romantic", "Opera"]
+      },
+      {
+        "name": "Hiller",
+        "year_started": 1840,
+        "genres": ["Romantic", "German Classical"]
+      },
+      {
+        "name": "Holst",
+        "year_started": 1900,
+        "genres": ["20th Century", "English Classical"]
+      },
+      {
+        "name": "Holst_m",
+        "year_started": 1940,
+        "genres": ["20th Century", "English Classical"]
+      },
+      {
+        "name": "Hummel",
+        "year_started": 1800,
+        "genres": ["Classical", "Romantic"]
+      },
+      {
+        "name": "Ivanovici",
+        "year_started": 1880,
+        "genres": ["Romantic", "March"]
+      },
+      {
+        "name": "Jakobowski",
+        "year_started": 1880,
+        "genres": ["Romantic", "Opera"]
+      },
+      {
+        "name": "Jensen",
+        "year_started": 1860,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Joplin",
+        "year_started": 1890,
+        "genres": ["Ragtime", "20th Century"]
+      },
+      {
+        "name": "Komzak",
+        "year_started": 1880,
+        "genres": ["Romantic", "March"]
+      },
+      {
+        "name": "Kuhlau",
+        "year_started": 1820,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Lange",
+        "year_started": 1880,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Laurent",
+        "year_started": 1920,
+        "genres": ["20th Century"]
+      },
+      {
+        "name": "Lavallee",
+        "year_started": 1880,
+        "genres": ["Romantic", "Canadian Classical"]
+      },
+      {
+        "name": "Le_thiere",
+        "year_started": 1910,
+        "genres": ["20th Century"]
+      },
+      {
+        "name": "Lecuona",
+        "year_started": 1920,
+        "genres": ["20th Century", "Cuban Classical"]
+      },
+      {
+        "name": "Lemire",
+        "year_started": 1980,
+        "genres": ["Contemporary Classical"]
+      },
+      {
+        "name": "Liszt",
+        "year_started": 1830,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Lyssenko",
+        "year_started": 1870,
+        "genres": ["Romantic", "Ukrainian Classical"]
+      },
+      {
+        "name": "Macbeth",
+        "year_started": 1970,
+        "genres": ["Contemporary Classical"]
+      },
+      {
+        "name": "Maccunn",
+        "year_started": 1880,
+        "genres": ["Romantic", "Scottish Classical"]
+      },
+      {
+        "name": "Massenet",
+        "year_started": 1870,
+        "genres": ["Romantic", "Opera"]
+      },
+      {
+        "name": "Mehul",
+        "year_started": 1800,
+        "genres": ["Classical", "Romantic", "Opera"]
+      },
+      {
+        "name": "Mendelsonn",
+        "year_started": 1830,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Mendelssohn",
+        "year_started": 1830,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Meyerbeer",
+        "year_started": 1820,
+        "genres": ["Romantic", "Opera"]
+      },
+      {
+        "name": "Morel",
+        "year_started": 1930,
+        "genres": ["20th Century"]
+      },
+      {
+        "name": "Moszkowski",
+        "year_started": 1880,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Mozart",
+        "year_started": 1770,
+        "genres": ["Classical"]
+      },
+      {
+        "name": "Mussorgski",
+        "year_started": 1860,
+        "genres": ["Romantic", "Russian Classical"]
+      },
+      {
+        "name": "Nicolai",
+        "year_started": 1840,
+        "genres": ["Romantic", "Opera"]
+      },
+      {
+        "name": "Pachelbel",
+        "year_started": 1680,
+        "genres": ["Baroque"]
+      },
+      {
+        "name": "Paderewski",
+        "year_started": 1890,
+        "genres": ["Romantic", "Polish Classical"]
+      },
+      {
+        "name": "Paganini",
+        "year_started": 1800,
+        "genres": ["Romantic", "Virtuoso"]
+      },
+      {
+        "name": "Paradisi",
+        "year_started": 1760,
+        "genres": ["Classical"]
+      },
+      {
+        "name": "Peterson",
+        "year_started": 1940,
+        "genres": ["Jazz", "20th Century"]
+      },
+      {
+        "name": "Pollen",
+        "year_started": 1980,
+        "genres": ["Contemporary Classical"]
+      },
+      {
+        "name": "Poulenc",
+        "year_started": 1920,
+        "genres": ["20th Century", "French Classical"]
+      },
+      {
+        "name": "Pridhan",
+        "year_started": 2000,
+        "genres": ["Contemporary Classical"]
+      },
+      {
+        "name": "Prokofiev",
+        "year_started": 1910,
+        "genres": ["20th Century", "Modern Classical", "Russian Classical"]
+      },
+      {
+        "name": "Rachmaninov",
+        "year_started": 1890,
+        "genres": ["Romantic", "Russian Classical"]
+      },
+      {
+        "name": "Raff",
+        "year_started": 1860,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Ravel",
+        "year_started": 1900,
+        "genres": ["Impressionist", "20th Century", "French Classical"]
+      },
+      {
+        "name": "Reger",
+        "year_started": 1890,
+        "genres": ["Late Romantic", "20th Century"]
+      },
+      {
+        "name": "Reinecke",
+        "year_started": 1850,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Resch",
+        "year_started": 2000,
+        "genres": ["Contemporary Classical"]
+      },
+      {
+        "name": "Rimsky",
+        "year_started": 1870,
+        "genres": ["Romantic", "Russian Classical"]
+      },
+      {
+        "name": "Rossini",
+        "year_started": 1810,
+        "genres": ["Romantic", "Opera"]
+      },
+      {
+        "name": "Rothchild",
+        "year_started": 1990,
+        "genres": ["Contemporary Classical"]
+      },
+      {
+        "name": "Saint",
+        "year_started": 1870,
+        "genres": ["Romantic", "French Classical"]
+      },
+      {
+        "name": "Sarasate",
+        "year_started": 1870,
+        "genres": ["Romantic", "Virtuoso"]
+      },
+      {
+        "name": "Satie",
+        "year_started": 1890,
+        "genres": ["Impressionist", "Avant-Garde", "French Classical"]
+      },
+      {
+        "name": "Scarlatti",
+        "year_started": 1720,
+        "genres": ["Baroque", "Classical"]
+      },
+      {
+        "name": "Schubert",
+        "year_started": 1820,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Schumann",
+        "year_started": 1830,
+        "genres": ["Romantic"]
+      },
+      {
+        "name": "Shostakovich",
+        "year_started": 1930,
+        "genres": ["20th Century", "Russian Classical"]
+      },
+      {
+        "name": "Sibelius",
+        "year_started": 1890,
+        "genres": ["Romantic", "20th Century", "Finnish Classical"]
+      },
+      {
+        "name": "Sinding",
+        "year_started": 1890,
+        "genres": ["Romantic", "Norwegian Classical"]
+      },
+      {
+        "name": "Skriabin",
+        "year_started": 1890,
+        "genres": ["Late Romantic", "20th Century", "Russian Classical"]
+      },
+      {
+        "name": "Straus",
+        "year_started": 1900,
+        "genres": ["Romantic", "Operetta"]
+      },
+      {
+        "name": "Strauss_j",
+        "year_started": 1850,
+        "genres": ["Romantic", "Waltz"]
+      },
+      {
+        "name": "Stravinsky",
+        "year_started": 1910,
+        "genres": ["20th Century", "Modern Classical", "Russian Classical"]
+      },
+      {
+        "name": "Sudds",
+        "year_started": 1910,
+        "genres": ["20th Century"]
+      },
+      {
+        "name": "Sullivan",
+        "year_started": 1870,
+        "genres": ["Romantic", "Operetta"]
+      },
+      {
+        "name": "Suppe",
+        "year_started": 1850,
+        "genres": ["Romantic", "Opera", "Operetta"]
+      },
+      {
+        "name": "Swinstead",
+        "year_started": 1890,
+        "genres": ["Romantic", "English Classical"]
+      },
+      {
+        "name": "Tarrega",
+        "year_started": 1870,
+        "genres": ["Romantic", "Spanish Classical", "Guitar"]
+      },
+      {
+        "name": "Taube",
+        "year_started": 1920,
+        "genres": ["20th Century", "Swedish Classical"]
+      },
+      {
+        "name": "Tchaikovsky",
+        "year_started": 1870,
+        "genres": ["Romantic", "Russian Classical"]
+      },
+      {
+        "name": "Tchakoff",
+        "year_started": 1970,
+        "genres": ["Contemporary Classical"]
+      },
+      {
+        "name": "Thomas",
+        "year_started": 1860,
+        "genres": ["Romantic", "Opera"]
+      },
+      {
+        "name": "Unknown_artist",
+        "year_started": 0,
+        "genres": []
+      },
+      {
+        "name": "Vaughan",
+        "year_started": 1900,
+        "genres": ["20th Century", "English Classical"]
+      },
+      {
+        "name": "Verdi",
+        "year_started": 1840,
+        "genres": ["Romantic", "Opera", "Italian Classical"]
+      },
+      {
+        "name": "Vivaldi",
+        "year_started": 1710,
+        "genres": ["Baroque", "Italian Classical"]
+      },
+      {
+        "name": "Wagner",
+        "year_started": 1840,
+        "genres": ["Romantic", "Opera", "German Classical"]
+      },
+      {
+        "name": "Wolf",
+        "year_started": 1880,
+        "genres": ["Romantic", "Austrian Classical"]
+      }
+    ]
+  }
